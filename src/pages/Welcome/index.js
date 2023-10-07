@@ -29,7 +29,7 @@ export default function Welcome() {
             <Animatable.View delay={1000} animation="fadeInUp" style={styles.containerForm}>
 
                 <Text style={styles.title}>Controle e eficiência na palma de suas mãos!</Text>
-                <Text style={styles.text}>Faça o login para começar</Text>
+                <Text style={styles.text}>Para acessar pressione o botão abaixo</Text>
 
                 <TouchableOpacity 
                     style={styles.button}
@@ -78,7 +78,10 @@ const styles = StyleSheet.create({
     },
 
     text:{
-        color: '#a1a1a1a1'
+        color: '#a1a1a1a1',
+        fontSize: 18,
+        textAlign: "center",
+        paddingTop:'8%'
     },
 
     button:{
