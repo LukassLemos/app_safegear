@@ -13,7 +13,7 @@ import Funcionários from '../pages/Funcionários';
 import EPI from '../pages/EPI´s';
 import Normas from '../pages/Normas';
 import Logout from '../pages/Logout';
-
+import CadastroFuncionario from '../pages/CadastroFuncionario';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -89,36 +89,41 @@ export default function AuthStack(){
     return(
         <Stack.Navigator>
             
-            <Stack.Screen
-                name= "Welcome"
-                component={Welcome}
-                options={{headerShown: false}}
-            />
+          <Stack.Screen
+            name= "Welcome"
+            component={Welcome}
+            options={{headerShown: false}}
+          />
 
-            <Stack.Screen
-                name= "Login"
-                component={Login}
-                options={{headerShown: false}}
-            />  
+          <Stack.Screen
+            name= "Login"
+            component={Login}
+            options={{headerShown: false}}
+          />  
 
-            <Stack.Screen
-                name= "SignIn"
-                component={SignIn}
-                options={{headerShown: false}}
-            />
+          <Stack.Screen
+            name= "SignIn"
+            component={SignIn}
+            options={{headerShown: false}}
+          />
 
-            <Stack.Screen
-                name= "ForgotPassword"
-                component={ForgotPassword}
-                options={{headerShown: false}}
-            />    
+          <Stack.Screen
+            name= "ForgotPassword"
+            component={ForgotPassword}
+            options={{headerShown: false}}
+          />    
 
-             <Stack.Screen
-                name= "Home"
-                component={HomeStack}
-                options={{headerShown: false}}
-            />
-    
+          <Stack.Screen
+            name= "Home"
+            component={HomeStack}
+            options={{headerShown: false}}
+          />
+
+          <Stack.Screen
+            name= "CadastroFuncionario"
+            component={CadastroFuncionario}
+            options={{headerShown: false}}
+          />
         </Stack.Navigator>
     );
 
