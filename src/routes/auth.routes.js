@@ -14,6 +14,9 @@ import EPI from '../pages/EPI´s';
 import Normas from '../pages/Normas';
 import Logout from '../pages/Logout';
 import CadastroFuncionario from '../pages/CadastroFuncionario';
+import EdicaoFuncionario from '../pages/EdicaoFuncionario';
+import VisualizarFuncionarios from '../pages/EdicaoFuncionario';
+import VisualizarFunc from '../pages/VisualizarFunc';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -124,6 +127,19 @@ export default function AuthStack(){
             component={CadastroFuncionario}
             options={{headerShown: false}}
           />
+
+          <Stack.Screen
+            name= "EdicaoFuncionario"
+            component={EdicaoFuncionario}
+            options={{headerShown: false}}
+          />
+
+          <Stack.Screen
+            name= "VisualizarFunc"
+            component={VisualizarFunc}
+            options={{headerShown: false}}
+          />
+
         </Stack.Navigator>
     );
 

@@ -28,7 +28,7 @@ export default function Welcome() {
 
             <Animatable.View delay={1000} animation="fadeInUp" style={styles.containerForm}>
 
-                <Text style={styles.title}>Controle e eficiência na palma de suas mãos!</Text>
+                <Text style={styles.title}>Controle e Eficiência na Palma de Suas Mãos!</Text>
                 <Text style={styles.text}>Para acessar pressione o botão abaixo</Text>
 
                 <TouchableOpacity 
@@ -72,16 +72,15 @@ const styles = StyleSheet.create({
     title:{
         fontSize: 24,
         fontWeight: 'bold',
-        marginTop: 28,
+        marginTop: 20,
         marginBottom: 12,
-        textAlign: 'justify'
+        textAlign: 'center'
     },
 
     text:{
         color: '#a1a1a1a1',
         fontSize: 18,
         textAlign: "center",
-        paddingTop:'8%'
     },
 
     button:{

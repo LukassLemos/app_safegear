@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView  } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Modal  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import * as Animatable from 'react-native-animatable';
@@ -11,6 +11,9 @@ import firebase from '../../services/firebaseConnection';
 
 export default function SignIn(){
 
+    const [aviso, setAviso] = useState('');
+    const [mensagem, setMensagem] = useState('');
+
     const navigation = useNavigation();
     const [input, setInput] = useState('');
     const [hidePass, setHidePass] = useState(true);
@@ -19,25 +22,51 @@ export default function SignIn(){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const MENSAGEM_CADASTRO_SUCESSO = 'Cadastro feito com sucesso';
+
+    const setMensagemModal = (msg) => {
+        setModalVisible(true);
+        setMensagem(msg);
+      };
+    
+      const setAvisoModal = (aviso) => {
+        setModalVisible(true);
+        setAviso(aviso);
+      };
+    
+      const resetMensagens = () => {
+        setAviso('');
+        setMensagem('');
+      };
+
     function handleSignIn(){
         firebase.auth().createUserWithEmailAndPassword(email, password)
         .then(userCredential =>{
             console.log('user: ', userCredential);
-            alert('Usuário criado com sucesso')
+            setMensagemModal('Cadastro feito com sucesso'),
+
             setEmail(''),
             setPassword(''),
-            setName(''),
-            navigation.navigate('Login');
+            setName('');
+
+            setTimeout(() => {
+                setModalVisible(true);
+                navigation.navigate('Login'); 
+            }, 2000); 
         })
         .catch(error =>{
            if (error.code === 'auth/email-already-in-use'){
                 console.log('email já existe');
-                alert ('Este email já está sendo usado');
+                setAvisoModal('Este email já está sendo usado');
+                setModalVisible(true);
             }
            
             if (error.code === 'auth/invalid-email'){
                 console.log('Email inválido');
-                alert('Digite um email válido');
+                setAvisoModal('Digite um email válido');
+                setModalVisible(true);
             }
         })
     }
@@ -51,6 +80,32 @@ export default function SignIn(){
                 contentContainerStyle={styles.scrollContainer}
                 keyboardShouldPersistTaps="handled"
                 >
+                
+                <Modal   
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => { setModalVisible(false) }}
+                    >
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            {aviso ? (
+                            <>
+                            <Text style={styles.modalText}>{aviso}</Text>
+                            <TouchableOpacity
+                                style={styles.modalButton}
+                                onPress={() => { setModalVisible(false) }}
+                                >
+                                <Text style={styles.modalButtonText}>OK</Text>
+                            </TouchableOpacity>
+                            </>
+                            ) : null}
+                            {mensagem ? (
+                            <Text style={styles.modalTextmsg}>{mensagem}</Text>
+                            ) : null}
+                        </View>
+                    </View>
+                </Modal>
 
                 <Animatable.View animation="fadeInLeft" delay={900} style={styles.containerHeader}>
                         <Text style={styles.message}>Faça seu cadastro</Text>
@@ -198,5 +253,54 @@ const styles = StyleSheet.create({
 
     registerText:{
         color: '#a1a1a1',
+    },
+    
+    containerAviso: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 10, // Ajuste a posição conforme necessário
+    },
+
+    aviso: {
+        color: 'red', // Cor do aviso
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+
+    modalText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+
+    modalTextmsg: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+
+    modalButton: {
+        backgroundColor: '#238dd1',
+        borderRadius: 5,
+        padding: 10,
+    },
+
+    modalButtonText: {
+        color: 'white',
+        fontSize: 16,
     },
 })

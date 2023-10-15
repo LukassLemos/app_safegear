@@ -1,66 +1,293 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity} from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Modal} from 'react-native';
+import { TextInputMask } from 'react-native-masked-text';
 import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
+import firebase from 'firebase';
+import 'firebase/database';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAUlLzng_p2B_TTsxoFwGQPfZfWvf41Ui0",
+  authDomain: "safegear-7e6ac.firebaseapp.com",
+  databaseURL: "https://safegear-7e6ac-default-rtdb.firebaseio.com",
+  projectId: "safegear-7e6ac",
+  storageBucket: "safegear-7e6ac.appspot.com",
+  messagingSenderId: "998569861476",
+  appId: "1:998569861476:web:40533585da70e0fc755a71"
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+const MENSAGEM_CADASTRO_SUCESSO = 'Cadastro feito com sucesso';
+const AVISO_CAMPOS_OBRIGATORIOS = 'Por favor, preencha todos os campos obrigatórios.';
 
 export default function CadastroFuncionario() {
   const navigation = useNavigation();
 
-  const handleFinalizarCadastro = () => {
-    alert('Cadastro Finalizado', 'O cadastro foi concluído com sucesso!');
+  const [aviso, setAviso] = useState('');
+  const [mensagem, setMensagem] = useState('');
+
+  const [registro, setRegistro] = useState('');
+  const [nome, setNome] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [dataNascimento, setDataNascimento] = useState('');
+  const [celular, setCelular] = useState(''); 
+  const [telefone, setTelefone] = useState(''); 
+  const [email, setEmail] = useState('');
+
+  const [setor, setSetor] = useState('');
+  const [cargo, setCargo] = useState('');
+  
+  const [nomeContato, setNomeContato] = useState('');
+  const [celularEmergencia, setCelularEmergencia] = useState(''); 
+  const [telefoneEmergencia, setTelefoneEmergencia] = useState(''); 
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [camposComErro, setCamposComErro] = useState([]);
+ 
+  const camposObrigatorios = [
+    { campo: 'registro', valor: registro },
+    { campo: 'nome', valor: nome },
+    { campo: 'cpf', valor: cpf },
+    { campo: 'dataNascimento', valor: dataNascimento },
+    { campo: 'celular', valor: celular },
+
+    { campo: 'setor', valor: setor },
+    { campo: 'cargo', valor: cargo },
+
+    { campo: 'nomeContato', valor: nomeContato },
+    { campo: 'celularEmergencia', valor: celularEmergencia },
+  ];
+
+  const setMensagemModal = (msg) => {
+    setModalVisible(true);
+    setMensagem(msg);
   };
+
+  const setAvisoModal = (aviso) => {
+    setModalVisible(true);
+    setAviso(aviso);
+  };
+
+  const resetMensagens = () => {
+    setAviso('');
+    setMensagem('');
+  };
+
+  const handleCadastro = () => {
+    const camposComErro = camposObrigatorios
+      .filter((campo) => !campo.valor)
+      .map((campo) => campo.campo);
+
+    if (camposComErro.length > 0) {
+      resetMensagens();
+      setAvisoModal(AVISO_CAMPOS_OBRIGATORIOS);
+      setModalVisible(true);
+      setCamposComErro(camposComErro);
+    } else {
+      const funcionarioData = [
+        { campo: 'Registro', valor: registro },
+        { campo: 'Nome', valor: nome },
+        { campo: 'Cpf', valor: cpf },
+        { campo: 'Data Nascimento', valor: dataNascimento },
+        { campo: 'Celular', valor: celular },
+        { campo: 'Telefone', valor: telefone },
+        { campo: 'Email', valor: email },
+
+        { campo: 'Setor', valor: setor },
+        { campo: 'Cargo', valor: cargo },
+
+        { campo: 'Nome Contato', valor: nomeContato },
+        { campo: 'Celular Emergência', valor: celularEmergencia },
+        { campo: 'Telefone Emergência', valor: telefoneEmergencia },
+      ];
+
+      firebase
+        .database()
+        .ref('funcionarios')
+        .push(funcionarioData)
+        .then((snapshot) => {
+        console.log('Cadastro realizado com sucesso!');
+  
+        // Fechar o modal
+        setMensagemModal(MENSAGEM_CADASTRO_SUCESSO);
+        
+        // Limpar campos após o cadastro
+        setRegistro('');
+        setNome('');
+        setCpf('');
+        setDataNascimento('');
+        setCelular('');
+        setTelefone('');
+        setEmail('');
+        setSetor('');
+        setCargo('');
+        setNomeContato('');
+        setCelularEmergencia('');
+        setTelefoneEmergencia('');
+
+        setTimeout(() => {
+          setModalVisible(true);
+          navigation.navigate('Funcionários'); 
+        }, 1800); 
+      })
+
+      .catch((error) => {
+        console.error('Erro ao cadastrar:', error.message);
+      });
+    }
+  };
+
 
   return (
     <ScrollView style={styles.ScrollView}>
+    <View style={styles.container}>
+  
+    <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => { setModalVisible(false) }}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              {aviso ? (
+                <>
+                  <Text style={styles.modalText}>{aviso}</Text>
+                  <TouchableOpacity
+                    style={styles.modalButton}
+                    onPress={() => { setModalVisible(false) }}
+                  >
+                    <Text style={styles.modalButtonText}>OK</Text>
+                  </TouchableOpacity>
+                </>
+              ) : null}
+              {mensagem ? (
+                <Text style={styles.modalTextmsg}>{mensagem}</Text>
+              ) : null}
+            </View>
+          </View>
+        </Modal>
 
-      <View style={styles.container}>
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity 
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity 
             style={styles.button}
             onPress={ () => navigation.goBack('CadastroFuncionario')}
           >
-          <Text style={styles.buttonText}>VOLTAR</Text>
-          </TouchableOpacity>
-        </View>
+          <Icon name="arrow-back" size={30} color="white" />
+        </TouchableOpacity>
       </View>
+
+    </View>
 
       <View style={styles.container}>
         <Text style={styles.titulo}>Cadastro de Funcionário</Text>
       </View>
-
       <View style={styles.containerMeio}>
         <View style={styles.containerInterno}>
 
           <Text style={styles.subTitulosDivisao}>Informações Pessoais:</Text>
-          <TextInput keyboardType="numeric" placeholder="Número de Registro."style={styles.textInput}/>
-          <TextInput placeholder="Nome completo."style={styles.textInput}/>
-          <TextInput placeholder="Sexo."style={styles.textInput}/>
-          <TextInput placeholder="Data de nascimento."style={styles.textInput}/>
-          <TextInput keyboardType="numeric" textInputContentType="none" placeholder="RG."style={styles.textInput}/>
-          <TextInput keyboardType="numeric" textInputContentType="none" placeholder="CPF."style={styles.textInput}/>
-          <TextInput keyboardType="phone-pad" placeholder="Telefone Fixo."style={styles.textInput}/>
-          <TextInput keyboardType="phone-pad" placeholder="Celular."style={styles.textInput}/>
-          <TextInput keyboardType="email-address" placeholder="E-mail."style={styles.textInput}/>
+          <TextInput keyboardType="numeric" placeholder="Número de Registro."style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} onChangeText={(text) => setRegistro(text)} value={registro}/>
+          <TextInput placeholder="Nome completo."style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} autoCorrect={false} onChangeText={(text) => setNome(text)} value={nome}/>
 
-          <Text style={styles.subTitulosDivisao}>Endereço do Colaborador:</Text>
-          <TextInput keyboardType="numeric" placeholder="CEP."style={styles.textInput}/>
-          <TextInput placeholder="País."style={styles.textInput}/>
-          <TextInput placeholder="Estado."style={styles.textInput}/>
-          <TextInput placeholder="Município."style={styles.textInput}/>
-          <TextInput placeholder="Estrada, Rua, etc..."style={styles.textInput}/>
-          <TextInput keyboardType="numeric" placeholder="Nº."style={styles.textInput}/>
-          <TextInput placeholder="Complemento."style={styles.textInput}/>
+          <TextInputMask
+          placeholder="CPF."
+          keyboardType='numeric'
+            type={'cpf'}
+            options={{
+              format:'999.999.999-99'
+            }}
+            style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]}
+            onChangeText={(text) => setCpf(text)} value={cpf}
+          
+          />
+
+          <TextInputMask
+            type={'datetime'}
+            options={{
+              format: 'DD/MM/YYYY',
+            }}
+            placeholder="Data de nascimento."
+            style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]}
+            onChangeText={(text) => setDataNascimento(text)}
+            value={dataNascimento}
+          />
+
+          <TextInputMask
+            keyboardType='numeric'
+            type={'custom'}
+            options={{
+              mask: '(99) 99999-9999',
+            }}
+            placeholder="Celular com DDD."
+            style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]}
+            onChangeText={(text) => setCelular(text)}
+            value={celular}
+          />  
+
+          <TextInputMask
+          keyboardType='numeric'
+            type={'custom'}
+            options={{
+              mask: '(99) 9999-9999',
+            }}
+            placeholder="Telefone fixo com DDD."
+            style={styles.textInput}
+            onChangeText={(text) => setTelefone(text)}
+            value={telefone}
+          />
+
+          <TextInput 
+            keyboardType="email-address" 
+            placeholder="E-mail."
+            style={styles.textInput} 
+            autoCapitalize="none" 
+            autoCorrect={false}
+            onChangeText={(text) => setEmail(text)}
+            value={email}
+          />
 
           <Text style={styles.subTitulosDivisao}>Informação de Ocupação:</Text>
-          <TextInput placeholder="Setor."style={styles.textInput}/>
-          <TextInput placeholder="Cargo."style={styles.textInput}/>
+          <TextInput placeholder="Setor."style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} autoCorrect={false} onChangeText={(text) => setSetor(text)} value={setor}/>
+          <TextInput placeholder="Cargo."style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} autoCorrect={false} onChangeText={(text) => setCargo(text)} value={cargo}/>
           
           <Text style={styles.subTitulosDivisaoEmergencia}>Contato de Emergência:</Text>
-          <TextInput keyboardType="phone-pad" placeholder="Telefone Fixo."style={styles.textInput}/>
-          <TextInput keyboardType="phone-pad" placeholder="Celular."style={styles.textInput}/>
-          <TextInput keyboardType="email-address" placeholder="E-mail."style={styles.textInput}/>
+
+          <TextInput 
+            placeholder="Nome completo."
+            style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} 
+            autoCorrect={false}
+            onChangeText={(text) => setNomeContato(text)} 
+            value={nomeContato}
+          />
+
+          <TextInputMask
+            keyboardType='numeric'
+            type={'custom'}
+            options={{
+              mask: '(99) 99999-9999',
+            }}
+            placeholder="Celular com DDD."
+            style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]}
+            onChangeText={(text) => setCelularEmergencia(text)}
+            value={celularEmergencia}
+          />
+
+          <TextInputMask
+          keyboardType='numeric'
+            type={'custom'}
+            options={{
+              mask: '(99) 9999-9999',
+            }}
+            placeholder="Telefone fixo com DDD."
+            style={styles.textInput}
+            onChangeText={(text) => setTelefoneEmergencia(text)}
+            value={telefoneEmergencia}
+          />
+
         </View>
 
       </View>
@@ -68,11 +295,8 @@ export default function CadastroFuncionario() {
 
         <View style={styles.buttonContainerEnviar}>
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleFinalizarCadastro} // Alteração aqui para chamar a função
-            >
-           <Text style={styles.buttonTextCad}>FINALIZAR CADASTRO</Text>
+          <TouchableOpacity style={styles.buttonCad} onPress={handleCadastro}>
+            <Text style={styles.buttonTextCad}>FINALIZAR CADASTRO</Text>
           </TouchableOpacity>
 
         </View>
@@ -92,7 +316,7 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 50,
+    marginTop: 60,
     marginBottom: 10,
   },
 
@@ -148,12 +372,21 @@ const styles = StyleSheet.create({
     left:0, // Ajuste a posição horizontal do botão conforme necessário
   },
 
-  button: {
-    backgroundColor: "#48c5fa", // Cor do botão
-    borderWidth: 1,
-    borderColor: "#e3e3e3",
-    borderRadius: 5, // Define o raio para todas as bordas
-    padding: 2,
+  button:{
+    backgroundColor:'#238dd1', // Cor do botão
+    borderWidth:1,
+    borderColor:"#e3e3e3",
+    borderTopRightRadius:5,
+    borderBottomRightRadius:5,
+    padding:2,
+  },
+
+  buttonCad:{
+    backgroundColor:'#238dd1', // Cor do botão
+    borderWidth:1,
+    borderColor:"#e3e3e3",
+    borderRadius:5,
+    padding:2,
   },
 
   buttonText:{ //Para botão voltar
@@ -172,5 +405,58 @@ const styles = StyleSheet.create({
     color:"white",
     fontSize:20,
   },
-  
+
+  containerAviso: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10, // Ajuste a posição conforme necessário
+  },
+
+  aviso: {
+    color: 'red', // Cor do aviso
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  modalText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+
+  modalTextmsg: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+},
+
+  modalButton: {
+    backgroundColor: '#238dd1',
+    borderRadius: 5,
+    padding: 10,
+  },
+
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+
+  requiredInput: {
+    borderColor: 'red',
+    borderWidth: 1,
+  },
 });

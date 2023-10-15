@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 
@@ -11,24 +11,63 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
 
+  const [aviso, setAviso] = useState('');
+  const [mensagem, setMensagem] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+
+
+  const setAvisoModal = (aviso) => {
+    setModalVisible(true);
+    setAviso(aviso);
+  };
+
 
   function handleResetPassword() {
     firebase.auth().sendPasswordResetEmail(email)
       .then(() => {
       setResetSent(true);
-      alert("Foi enviado um email para: " + email + "  Verifique a sua caixa de email.");
-      navigation.navigate('Login');
+      setEmail('')
+      
+      setTimeout(() => {
+        setModalVisible(true);
+        navigation.navigate('Login'); 
+      }, 5000);
     })
     
     .catch(error => {
-      alert("Digite um email válido !")
+      setAvisoModal('Digite um email válido');
+      setModalVisible(true);
     });
     return;
   }
 
   return (
     <View style={styles.container}>
-
+      <Modal   
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => { setModalVisible(false) }}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+             {aviso ? (
+              <>
+              <Text style={styles.modalText}>{aviso}</Text>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => { setModalVisible(false) }}
+                >
+                <Text style={styles.modalButtonText}>OK</Text>
+              </TouchableOpacity>
+              </>
+              ) : null}
+              {mensagem ? (
+              <Text style={styles.modalTextmsg}>{mensagem}</Text>
+              ) : null}
+            </View>
+          </View>
+      </Modal>
       <Text style={styles.message}>Redefina sua senha</Text>
 
       <View style={styles.box}>
@@ -50,7 +89,7 @@ export default function ForgotPassword() {
           <Text style={styles.resetButtonText}>ENVIAR E-MAIL DE REDEFINIÇÃO DE SENHA</Text>
         </TouchableOpacity>
 
-        {resetSent && <Text style={styles.successText}>E-mail de redefinição de senha enviado com sucesso!</Text>} 
+        {resetSent && <Text style={styles.successText}>E-mail de redefinição de senha enviado com sucesso! Verifique sua caixa de Email.</Text>} 
 
       </View>
       
@@ -130,6 +169,55 @@ const styles = StyleSheet.create({
     color: 'black',
     marginBottom: '10%',
     paddingStart: '1%',
+  },
+
+  containerAviso: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10, // Ajuste a posição conforme necessário
+  },
+
+  aviso: {
+    color: 'red', // Cor do aviso
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  modalText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+
+  modalTextmsg: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+
+  modalButton: {
+    backgroundColor: '#238dd1',
+    borderRadius: 5,
+    padding: 10,
+  },
+
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 
 })

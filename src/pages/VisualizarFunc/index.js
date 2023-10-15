@@ -1,0 +1,236 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import firebase from 'firebase';
+import { TextInputMask } from 'react-native-masked-text';
+
+export default function VisualizarFunc({ route, navigation }) {
+  const { funcionarioId } = route.params;
+  const [funcionario, setFuncionario] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    const funcionarioRef = firebase.database().ref(`funcionarios/${funcionarioId}`);
+
+    const handleData = (snapshot) => {
+      const funcionarioData = snapshot.val();
+
+      if (funcionarioData) {
+        const funcionarioArray = Object.keys(funcionarioData).map((index) => ({
+          campo: funcionarioData[index].campo,
+          valor: funcionarioData[index].valor,
+        }));
+        setFuncionario(funcionarioArray);
+      } else {
+        console.log('Nenhum dado de funcionário encontrado para edição.');
+      }
+    };
+
+    funcionarioRef.on('value', handleData, (error) => {
+      console.error('Erro ao obter dados do Firebase:', error.message);
+    });
+
+    return () => funcionarioRef.off('value', handleData);
+  }, [funcionarioId]);
+
+  const handleAtualizar = () => {
+    const atualizacaoFuncionario = {};
+    funcionario.forEach(({ campo, valor }, index) => {
+      atualizacaoFuncionario[index] = { campo, valor };
+    });
+
+    firebase.database().ref(`funcionarios/${funcionarioId}`).update(atualizacaoFuncionario)
+      .then(() => {
+        console.log('Funcionário atualizado com sucesso');
+        setModalVisible(true);
+        setTimeout(() => {
+          setModalVisible(false);
+          navigation.navigate('EdicaoFuncionario'); // Substitua 'OutraTela' pelo nome real da tela
+        }, 2400);
+      })
+      .catch((error) => console.error('Erro ao atualizar funcionário:', error));
+  };
+
+  if (funcionario.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text>Carregando...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView style={styles.scrollView}>
+      <View style={styles.container}>
+        <Text style={styles.titulo}>Atualização de Cadastro</Text>
+
+        {funcionario.map(({ campo, valor }, index) => (
+          <View key={index} style={styles.camposContainer}>
+            <Text style={styles.label}>{campo}</Text>
+            {campo === 'Cpf' ? (
+              <TextInputMask
+                style={styles.maskedInput}
+                type={'cpf'}
+                options={{
+                  mask: '999.999.999-99',
+                }}
+                value={valor}
+                onChangeText={(novoValor) => {
+                  const novoFuncionario = funcionario.map((c, i) =>
+                    i === index ? { ...c, valor: novoValor } : c
+                  );
+                  setFuncionario(novoFuncionario);
+                }}
+              />
+            ) : campo.includes('Celular') ? (
+              <TextInputMask
+                style={styles.maskedInput}
+                type={'custom'}
+                options={{
+                  mask: '(99) 99999-9999',
+                }}
+                value={valor}
+                onChangeText={(novoValor) => {
+                  const novoFuncionario = funcionario.map((c, i) =>
+                    i === index ? { ...c, valor: novoValor } : c
+                  );
+                  setFuncionario(novoFuncionario);
+                }}
+                keyboardType='numeric'
+              />
+            ) : campo.includes('Telefone') ? (
+              <TextInputMask
+                style={styles.maskedInput}
+                type={'custom'}
+                options={{
+                  mask: '(99) 9999-9999',
+                }}
+                value={valor}
+                onChangeText={(novoValor) => {
+                  const novoFuncionario = funcionario.map((c, i) =>
+                    i === index ? { ...c, valor: novoValor } : c
+                  );
+                  setFuncionario(novoFuncionario);
+                }}
+                keyboardType='numeric'
+              />
+            ) : (
+              <TextInput
+                style={styles.input}
+                value={valor}
+                onChangeText={(novoValor) => {
+                  const novoFuncionario = funcionario.map((c, i) =>
+                    i === index ? { ...c, valor: novoValor } : c
+                  );
+                  setFuncionario(novoFuncionario);
+                }}
+                keyboardType='default'
+              />
+            )}
+          </View>
+        ))}
+
+        <TouchableOpacity style={styles.button} onPress={handleAtualizar}>
+          <Text style={styles.buttonText}>Atualizar</Text>
+        </TouchableOpacity>
+
+        {/* Modal de Confirmação */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(false);
+          }}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>Atualização feita com sucesso!</Text>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+  },
+
+  container: {
+    padding: 16,
+  },
+
+  titulo: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 5,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+
+  camposContainer: {
+    marginBottom: 16,
+  },
+
+  label: {
+    fontSize: 18,
+    marginBottom: 8,
+  },
+
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 8,
+    marginBottom: 10,
+  },
+
+  maskedInput: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 8,
+    marginBottom: 10,
+  },
+
+  button: {
+    backgroundColor: '#238dd1',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+
+  // Estilos do Modal
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
+  },
+
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+    fontWeight: 'bold',  
+  },
+
+});
+
+

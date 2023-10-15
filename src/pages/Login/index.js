@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView  } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView, Modal  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import * as Animatable from 'react-native-animatable';
@@ -16,19 +16,21 @@ export default function Login(){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const [aviso, setAviso] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+
     function handleLogin(){
         firebase.auth().signInWithEmailAndPassword(email, password)
         .then(() =>{
             console.log('Usuário logado com sucesso !');
-            alert('Seja Bem Vindo')
             setEmail('');
             setPassword('');
             navigation.navigate('Home');
         })
        
         .catch(error =>{ console.log('Usuario e senha não identificados')
-            alert('Usuário e senha não identificados')
-            
+            setAviso('Usuário e senha não identificados');
+            setModalVisible(true);
         })
     }
 
@@ -40,6 +42,28 @@ export default function Login(){
                 contentContainerStyle={styles.scrollContainer}
                 keyboardShouldPersistTaps="handled"
                 >
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => {
+                    setModalVisible(!modalVisible);
+                    }}
+                    >
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalText}>{aviso}</Text>
+                            <TouchableOpacity
+                                style={styles.modalButton}
+                                onPress={() => {
+                                setModalVisible(!modalVisible);
+                                }}
+                                >
+                                <Text style={styles.modalButtonText}>OK</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
 
                 <Animatable.View animation="fadeInLeft" delay={900} style={styles.containerHeader}>
                     <Text style={styles.message}>Bem-vindo(a)</Text>
@@ -186,5 +210,48 @@ const styles = StyleSheet.create({
     
     registerText:{
         color: '#a1a1a1',
+    },
+
+    containerAviso: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 10, // Ajuste a posição conforme necessário
+    },
+
+    aviso: {
+        color: 'red', // Cor do aviso
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+
+    modalText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+
+    modalButton: {
+        backgroundColor: '#238dd1',
+        borderRadius: 5,
+        padding: 10,
+    },
+
+    modalButtonText: {
+        color: 'white',
+        fontSize: 16,
     },
 })
