@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Modal} from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { TextInputMask } from 'react-native-masked-text';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -34,20 +34,20 @@ export default function CadastroFuncionario() {
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
   const [dataNascimento, setDataNascimento] = useState('');
-  const [celular, setCelular] = useState(''); 
-  const [telefone, setTelefone] = useState(''); 
+  const [celular, setCelular] = useState('');
+  const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
 
   const [setor, setSetor] = useState('');
   const [cargo, setCargo] = useState('');
-  
+
   const [nomeContato, setNomeContato] = useState('');
-  const [celularEmergencia, setCelularEmergencia] = useState(''); 
-  const [telefoneEmergencia, setTelefoneEmergencia] = useState(''); 
+  const [celularEmergencia, setCelularEmergencia] = useState('');
+  const [telefoneEmergencia, setTelefoneEmergencia] = useState('');
 
   const [modalVisible, setModalVisible] = useState(false);
   const [camposComErro, setCamposComErro] = useState([]);
- 
+
   const camposObrigatorios = [
     { campo: 'registro', valor: registro },
     { campo: 'nome', valor: nome },
@@ -77,7 +77,7 @@ export default function CadastroFuncionario() {
     setMensagem('');
   };
 
-  const handleCadastro = () => {
+  const handleCadastro = async () => {
     const camposComErro = camposObrigatorios
       .filter((campo) => !campo.valor)
       .map((campo) => campo.campo);
@@ -88,65 +88,74 @@ export default function CadastroFuncionario() {
       setModalVisible(true);
       setCamposComErro(camposComErro);
     } else {
-      const funcionarioData = [
-        { campo: 'Registro', valor: registro },
-        { campo: 'Nome', valor: nome },
-        { campo: 'Cpf', valor: cpf },
-        { campo: 'Data Nascimento', valor: dataNascimento },
-        { campo: 'Celular', valor: celular },
-        { campo: 'Telefone', valor: telefone },
-        { campo: 'Email', valor: email },
+      const registroEmUso = await verificarRegistroEmUso(registro);
 
-        { campo: 'Setor', valor: setor },
-        { campo: 'Cargo', valor: cargo },
+      if (registroEmUso) {
+        setAvisoModal('Número de registro já está sendo usado.');
+        setModalVisible(true);
+      } else {
+        const funcionarioData = [
+          { campo: 'Registro', valor: registro },
+          { campo: 'Nome', valor: nome },
+          { campo: 'Cpf', valor: cpf },
+          { campo: 'Data Nascimento', valor: dataNascimento },
+          { campo: 'Celular', valor: celular },
+          { campo: 'Telefone', valor: telefone },
+          { campo: 'Email', valor: email },
 
-        { campo: 'Nome Contato', valor: nomeContato },
-        { campo: 'Celular Emergência', valor: celularEmergencia },
-        { campo: 'Telefone Emergência', valor: telefoneEmergencia },
-      ];
+          { campo: 'Setor', valor: setor },
+          { campo: 'Cargo', valor: cargo },
 
-      firebase
-        .database()
-        .ref('funcionarios')
-        .push(funcionarioData)
-        .then((snapshot) => {
-        console.log('Cadastro realizado com sucesso!');
-  
-        // Fechar o modal
-        setMensagemModal(MENSAGEM_CADASTRO_SUCESSO);
-        
-        // Limpar campos após o cadastro
-        setRegistro('');
-        setNome('');
-        setCpf('');
-        setDataNascimento('');
-        setCelular('');
-        setTelefone('');
-        setEmail('');
-        setSetor('');
-        setCargo('');
-        setNomeContato('');
-        setCelularEmergencia('');
-        setTelefoneEmergencia('');
+          { campo: 'Nome Contato', valor: nomeContato },
+          { campo: 'Celular Emergência', valor: celularEmergencia },
+          { campo: 'Telefone Emergência', valor: telefoneEmergencia },
+        ];
 
-        setTimeout(() => {
-          setModalVisible(true);
-          navigation.navigate('Funcionários'); 
-        }, 1800); 
-      })
+        firebase
+          .database()
+          .ref('funcionarios')
+          .push(funcionarioData)
+          .then((snapshot) => {
+            console.log('Cadastro realizado com sucesso!');
 
-      .catch((error) => {
-        console.error('Erro ao cadastrar:', error.message);
-      });
+            // Fechar o modal
+            setMensagemModal(MENSAGEM_CADASTRO_SUCESSO);
+
+            // Limpar campos após o cadastro
+            setRegistro('');
+            setNome('');
+            setCpf('');
+            setDataNascimento('');
+            setCelular('');
+            setTelefone('');
+            setEmail('');
+            setSetor('');
+            setCargo('');
+            setNomeContato('');
+            setCelularEmergencia('');
+            setTelefoneEmergencia('');
+
+            setTimeout(() => {
+              setModalVisible(false);
+              navigation.navigate('Funcionários');
+            }, 1800);
+          })
+          .catch((error) => {
+            console.error('Erro ao cadastrar:', error.message);
+          });
+      }
     }
   };
 
+  const verificarRegistroEmUso = async (registro) => {
+    const snapshot = await firebase.database().ref('funcionarios').orderByChild('Registro').equalTo(registro).once('value');
+    return snapshot.exists();
+  };
 
   return (
     <ScrollView style={styles.ScrollView}>
-    <View style={styles.container}>
-  
-    <Modal
+      <View style={styles.container}>
+        <Modal
           animationType="slide"
           transparent={true}
           visible={modalVisible}
@@ -172,16 +181,15 @@ export default function CadastroFuncionario() {
           </View>
         </Modal>
 
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity 
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
             style={styles.button}
-            onPress={ () => navigation.goBack('CadastroFuncionario')}
+            onPress={() => navigation.goBack('CadastroFuncionario')}
           >
-          <Icon name="arrow-back" size={30} color="white" />
-        </TouchableOpacity>
+            <Icon name="arrow-back" size={30} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
-
-    </View>
 
       <View style={styles.container}>
         <Text style={styles.titulo}>Cadastro de Funcionário</Text>
@@ -190,19 +198,19 @@ export default function CadastroFuncionario() {
         <View style={styles.containerInterno}>
 
           <Text style={styles.subTitulosDivisao}>Informações Pessoais:</Text>
-          <TextInput keyboardType="numeric" placeholder="Número de Registro."style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} onChangeText={(text) => setRegistro(text)} value={registro}/>
-          <TextInput placeholder="Nome completo."style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} autoCorrect={false} onChangeText={(text) => setNome(text)} value={nome}/>
+          <TextInput keyboardType="numeric" placeholder="Número de Registro." style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} onChangeText={(text) => setRegistro(text)} value={registro} />
+          <TextInput placeholder="Nome completo." style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} autoCorrect={false} onChangeText={(text) => setNome(text)} value={nome} />
 
           <TextInputMask
-          placeholder="CPF."
-          keyboardType='numeric'
+            placeholder="CPF."
+            keyboardType='numeric'
             type={'cpf'}
             options={{
-              format:'999.999.999-99'
+              format: '999.999.999-99'
             }}
             style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]}
             onChangeText={(text) => setCpf(text)} value={cpf}
-          
+
           />
 
           <TextInputMask
@@ -226,10 +234,10 @@ export default function CadastroFuncionario() {
             style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]}
             onChangeText={(text) => setCelular(text)}
             value={celular}
-          />  
+          />
 
           <TextInputMask
-          keyboardType='numeric'
+            keyboardType='numeric'
             type={'custom'}
             options={{
               mask: '(99) 9999-9999',
@@ -240,27 +248,27 @@ export default function CadastroFuncionario() {
             value={telefone}
           />
 
-          <TextInput 
-            keyboardType="email-address" 
+          <TextInput
+            keyboardType="email-address"
             placeholder="E-mail."
-            style={styles.textInput} 
-            autoCapitalize="none" 
+            style={styles.textInput}
+            autoCapitalize="none"
             autoCorrect={false}
             onChangeText={(text) => setEmail(text)}
             value={email}
           />
 
           <Text style={styles.subTitulosDivisao}>Informação de Ocupação:</Text>
-          <TextInput placeholder="Setor."style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} autoCorrect={false} onChangeText={(text) => setSetor(text)} value={setor}/>
-          <TextInput placeholder="Cargo."style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} autoCorrect={false} onChangeText={(text) => setCargo(text)} value={cargo}/>
-          
+          <TextInput placeholder="Setor." style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} autoCorrect={false} onChangeText={(text) => setSetor(text)} value={setor} />
+          <TextInput placeholder="Cargo." style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} autoCorrect={false} onChangeText={(text) => setCargo(text)} value={cargo} />
+
           <Text style={styles.subTitulosDivisaoEmergencia}>Contato de Emergência:</Text>
 
-          <TextInput 
+          <TextInput
             placeholder="Nome completo."
-            style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} 
+            style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]}
             autoCorrect={false}
-            onChangeText={(text) => setNomeContato(text)} 
+            onChangeText={(text) => setNomeContato(text)}
             value={nomeContato}
           />
 
@@ -277,7 +285,7 @@ export default function CadastroFuncionario() {
           />
 
           <TextInputMask
-          keyboardType='numeric'
+            keyboardType='numeric'
             type={'custom'}
             options={{
               mask: '(99) 9999-9999',
@@ -289,7 +297,6 @@ export default function CadastroFuncionario() {
           />
 
         </View>
-
       </View>
       <View style={styles.container}>
 
@@ -316,7 +323,7 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 60,
+    marginTop: 70,
     marginBottom: 10,
   },
 
@@ -379,6 +386,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius:5,
     borderBottomRightRadius:5,
     padding:2,
+    marginTop: 20,
   },
 
   buttonCad:{

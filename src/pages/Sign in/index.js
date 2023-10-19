@@ -41,35 +41,40 @@ export default function SignIn(){
         setMensagem('');
       };
 
-    function handleSignIn(){
-        firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then(userCredential =>{
-            console.log('user: ', userCredential);
-            setMensagemModal('Cadastro feito com sucesso'),
+function handleSignIn() {
+  firebase
+    .auth()
+    .createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      // Atualize o nome do usuário no Firebase
+      userCredential.user.updateProfile({
+        displayName: name,
+      });
 
-            setEmail(''),
-            setPassword(''),
-            setName('');
+      setMensagemModal('Cadastro feito com sucesso'),
+        setEmail(''),
+        setPassword(''),
+        setName('');
 
-            setTimeout(() => {
-                setModalVisible(true);
-                navigation.navigate('Login'); 
-            }, 2000); 
-        })
-        .catch(error =>{
-           if (error.code === 'auth/email-already-in-use'){
-                console.log('email já existe');
-                setAvisoModal('Este email já está sendo usado');
-                setModalVisible(true);
-            }
-           
-            if (error.code === 'auth/invalid-email'){
-                console.log('Email inválido');
-                setAvisoModal('Digite um email válido');
-                setModalVisible(true);
-            }
-        })
-    }
+      setTimeout(() => {
+        setModalVisible(true);
+        navigation.navigate('Login');
+      }, 2000);
+    })
+    .catch((error) => {
+      if (error.code === 'auth/email-already-in-use') {
+        console.log('email já existe');
+        setAvisoModal('Este email já está sendo usado');
+        setModalVisible(true);
+      }
+
+      if (error.code === 'auth/invalid-email') {
+        console.log('Email inválido');
+        setAvisoModal('Digite um email válido');
+        setModalVisible(true);
+      }
+    });
+}
     
     
     return (

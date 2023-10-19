@@ -1,12 +1,13 @@
-// Funcionarios.js
-
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Substitua 'FontAwesome' pelo ícone desejado
 import firebase from 'firebase';
 
 export default function Funcionarios({ navigation }) {
   const [funcionarios, setFuncionarios] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [originalFuncionarios, setOriginalFuncionarios] = useState([]);
 
   const loadData = useCallback(() => {
     const funcionariosRef = firebase.database().ref('funcionarios');
@@ -23,9 +24,11 @@ export default function Funcionarios({ navigation }) {
         }));
         console.log('Funcionarios do Firebase:', funcionariosArray);
         setFuncionarios(funcionariosArray);
+        setOriginalFuncionarios(funcionariosArray); // Armazenar uma cópia original para a pesquisa
       } else {
         console.log('Nenhum dado de funcionário encontrado no Firebase.');
         setFuncionarios([]);
+        setOriginalFuncionarios([]);
       }
     };
 
@@ -51,16 +54,20 @@ export default function Funcionarios({ navigation }) {
   }, [navigation, loadData]);
 
   useEffect(() => {
-    // Atualizar opções de navegação para adicionar o ícone de recarregar dados
+    // Atualizar opções de navegação para adicionar os ícones de lupa e recarregar
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={loadData}>
-          {/* Utilize o ícone em vez do texto */}
-          <Icon name="refresh" size={24} color="white" style={styles.reloadIcon} />
-        </TouchableOpacity>
+        <View style={styles.headerIcons}>
+          <TouchableOpacity onPress={() => setSearchVisible(!searchVisible)}>
+            <Icon name="search" size={24} color="white" style={styles.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={loadData}>
+            <Icon name="refresh" size={24} color="white" style={styles.icon} />
+          </TouchableOpacity>
+        </View>
       ),
     });
-  }, [navigation, loadData]);
+  }, [navigation, loadData, searchVisible]);
 
   const navigateToCadastro = () => {
     navigation.navigate('CadastroFuncionario');
@@ -70,8 +77,29 @@ export default function Funcionarios({ navigation }) {
     navigation.navigate('EdicaoFuncionario', { funcionarioId: id });
   };
 
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+
+    // Filtrar funcionários com base na consulta
+    const filteredFuncionarios = originalFuncionarios.filter((funcionario) =>
+      funcionario.nome.toLowerCase().includes(query.toLowerCase())
+    );
+
+    setFuncionarios(filteredFuncionarios);
+  };
+
   return (
     <View style={styles.container}>
+      {/* Barra de pesquisa */}
+      {searchVisible && (
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar por nome..."
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
+      )}
+
       <Text style={styles.text}>Lista de Funcionários</Text>
 
       {/* Lista de funcionários */}
@@ -108,7 +136,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 5,
     marginBottom: 10,
-    textAlign: 'center'
+    textAlign: 'center',
   },
 
   funcionarioItem: {
@@ -147,9 +175,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  reloadIcon: {
+  headerIcons: {
+    flexDirection: 'row',
+    marginRight: 16,
+  },
+
+  icon: {
     marginRight: 16,
     color: 'black'
+  },
+
+  searchInput: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingLeft: 10,
   },
 });
 

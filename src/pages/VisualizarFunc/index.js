@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, ActivityIndicator } from 'react-native';
 import firebase from 'firebase';
 import { TextInputMask } from 'react-native-masked-text';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function VisualizarFunc({ route, navigation }) {
   const { funcionarioId } = route.params;
   const [funcionario, setFuncionario] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
+
     const funcionarioRef = firebase.database().ref(`funcionarios/${funcionarioId}`);
 
     const handleData = (snapshot) => {
@@ -23,6 +27,8 @@ export default function VisualizarFunc({ route, navigation }) {
       } else {
         console.log('Nenhum dado de funcionário encontrado para edição.');
       }
+
+      setIsLoading(false);
     };
 
     funcionarioRef.on('value', handleData, (error) => {
@@ -44,16 +50,16 @@ export default function VisualizarFunc({ route, navigation }) {
         setModalVisible(true);
         setTimeout(() => {
           setModalVisible(false);
-          navigation.navigate('EdicaoFuncionario'); // Substitua 'OutraTela' pelo nome real da tela
+          navigation.navigate('EdicaoFuncionario');
         }, 2400);
       })
       .catch((error) => console.error('Erro ao atualizar funcionário:', error));
   };
 
-  if (funcionario.length === 0) {
+  if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text>Carregando...</Text>
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
@@ -61,6 +67,11 @@ export default function VisualizarFunc({ route, navigation }) {
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.buttonIcon}
+          onPress={() => navigation.goBack()}>
+          <Icon name="arrow-back" size={30} color="white" />
+        </TouchableOpacity>
         <Text style={styles.titulo}>Atualização de Cadastro</Text>
 
         {funcionario.map(({ campo, valor }, index) => (
@@ -113,6 +124,34 @@ export default function VisualizarFunc({ route, navigation }) {
                 }}
                 keyboardType='numeric'
               />
+            ) : campo === 'Data de Nascimento' ? (
+              <TextInputMask
+                style={styles.maskedInput}
+                type={'datetime'}
+                options={{
+                  format: 'DD/MM/YYYY',
+                }}
+                value={valor}
+                onChangeText={(novoValor) => {
+                  const novoFuncionario = funcionario.map((c, i) =>
+                    i === index ? { ...c, valor: novoValor } : c
+                  );
+                  setFuncionario(novoFuncionario);
+                }}
+              />
+            ) : campo === 'Email' ? (
+              <TextInput
+                style={styles.input}
+                value={valor}
+                onChangeText={(novoValor) => {
+                  const novoFuncionario = funcionario.map((c, i) =>
+                    i === index ? { ...c, valor: novoValor } : c
+                  );
+                  setFuncionario(novoFuncionario);
+                }}
+                keyboardType='email-address'
+                autoCapitalize='none'
+              />
             ) : (
               <TextInput
                 style={styles.input}
@@ -161,10 +200,22 @@ const styles = StyleSheet.create({
     padding: 16,
   },
 
+  buttonIcon: {
+    backgroundColor: '#238dd1',
+    borderWidth: 1,
+    borderColor: "#e3e3e3",
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+    padding: 2,
+    marginTop: 2,
+    position: "absolute",
+    top: 30,
+  },
+
   titulo: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 5,
+    marginTop: 60,
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -210,7 +261,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Estilos do Modal
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -228,9 +278,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 20,
     textAlign: 'center',
-    fontWeight: 'bold',  
+    fontWeight: 'bold',
   },
-
 });
-
 
