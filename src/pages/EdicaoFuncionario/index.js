@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 70,
+    marginTop: 60,
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 10,
     left: 0,
-    marginTop: 20,
+    marginTop: 6,
   },
 
   // Estilos do Modal

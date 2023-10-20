@@ -3,7 +3,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { DrawerItem } from '@react-navigation/drawer';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Certifique-se de instalar esta biblioteca
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import firebase from 'firebase'; 
 
@@ -19,6 +19,7 @@ import Logout from '../pages/Logout';
 import CadastroFuncionario from '../pages/CadastroFuncionario';
 import EdicaoFuncionario from '../pages/EdicaoFuncionario';
 import VisualizarFunc from '../pages/VisualizarFunc';
+import Perfil from '../pages/Perfil'; 
 
 
 const Stack = createNativeStackNavigator();
@@ -65,37 +66,64 @@ const CustomDrawerContent = (props) => {
       <View style={styles.drawerHeader}>
         {/* Ícone de usuário */}
         <Icon name="user" color="white" size={30} style={styles.drawerUserIcon} />
+        <TouchableOpacity>
 
-        <View style={styles.userInfo}>
-          <Text style={styles.drawerHeaderText}>{userName}</Text>
-          <Text style={styles.drawerSubHeaderText}>{userEmail}</Text>
-        </View>
+          <View style={styles.userInfo}>
+
+            <Text
+              style={[styles.drawerHeaderText, styles.linkText]} 
+             onPress={() => props.navigation.navigate('Perfil')}
+              >
+              {userName}
+            </Text>
+
+            <Text
+             style={[styles.drawerSubHeaderText, styles.linkText]}
+
+              >
+              {userEmail}
+            </Text>
+
+          </View>
+
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => props.navigation.navigate('Perfil')}>
+          <Icon name="chevron-down" color="white" size={13} style={styles.drawerDownIcon} />
+        </TouchableOpacity>
+
       </View>
+
       <CustomDrawerItem
         label="Início"
         onPress={() => props.navigation.navigate('Início')}
         icon="home"
       />
+
       <CustomDrawerItem
         label="Funcionários"
         onPress={() => props.navigation.navigate('Funcionários')}
         icon="users"
       />
+
       <CustomDrawerItem
         label="E.P.I´s"
         onPress={() => props.navigation.navigate('EPI')}
         icon="shield"
       />
+
       <CustomDrawerItem
         label="Normas"
         onPress={() => props.navigation.navigate('Normas')}
         icon="book"
       />
+
       <CustomDrawerItem
         label="Sair"
         onPress={() => props.navigation.navigate('Logout')}
         icon="sign-out"
       />
+
     </DrawerContentScrollView>
   );
 };
@@ -111,6 +139,7 @@ function HomeStack() {
       <Drawer.Screen name="EPI" component={EPI} />
       <Drawer.Screen name="Normas" component={Normas} />
       <Drawer.Screen name="Logout" component={Logout} />
+      <Drawer.Screen name="Perfil" component={Perfil} />
     </Drawer.Navigator>
   );
 }
@@ -216,6 +245,11 @@ const styles = StyleSheet.create({
   drawerUserIcon: {
     marginLeft: - 10,
     marginRight: 15,
+  },
+
+  drawerDownIcon: {
+    marginLeft: 13,
+    marginTop: 25
   },
 
 });

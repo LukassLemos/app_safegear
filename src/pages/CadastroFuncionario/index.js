@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 70,
+    marginTop: 60,
     marginBottom: 10,
   },
 
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius:5,
     borderBottomRightRadius:5,
     padding:2,
-    marginTop: 20,
+    marginTop: 6,
   },
 
   buttonCad:{
