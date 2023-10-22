@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView, Modal  } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
 import * as Animatable from 'react-native-animatable';
-
-import { useNavigation } from '@react-navigation/native';
-
+import { useNavigation, useIsFocused } from '@react-navigation/native'; // Importe useIsFocused
 import firebase from '../../services/firebaseConnection';
 
-export default function Login(){
+export default function Login() {
     const navigation = useNavigation();
+    const isFocused = useIsFocused(); // Use useIsFocused para verificar se a tela está em foco
+
     const [input, setInput] = useState('');
     const [hidePass, setHidePass] = useState(true);
 
@@ -19,20 +18,30 @@ export default function Login(){
     const [aviso, setAviso] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
 
-    function handleLogin(){
+    function handleLogin() {
         firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(() =>{
-            console.log('Usuário logado com sucesso !');
+            .then(() => {
+                console.log('Usuário logado com sucesso !');
+                setEmail('');
+                setPassword('');
+                navigation.navigate('Home');
+            })
+            .catch(error => {
+                console.log('Usuário e senha não identificados');
+                setAviso('Usuário e senha não identificados');
+                setModalVisible(true);
+                
+            });
+    }
+
+    // Use useEffect para limpar os campos quando a tela estiver em foco
+    useEffect(() => {
+        if (isFocused) {
             setEmail('');
             setPassword('');
-            navigation.navigate('Home');
-        })
-       
-        .catch(error =>{ console.log('Usuario e senha não identificados')
-            setAviso('Usuário e senha não identificados');
-            setModalVisible(true);
-        })
-    }
+        }
+    }, [isFocused]);
+
 
     return (
         <KeyboardAvoidingView
@@ -79,6 +88,7 @@ export default function Login(){
                     value={email}
                     onChangeText={ (text) => setEmail(text) }
                     style={styles.input}
+                    
                     />
 
                 
@@ -115,6 +125,7 @@ export default function Login(){
                         style={styles.buttonRegister}
                         onPress={ () => navigation.navigate('SignIn')}
                         >
+
                         <Text style={styles.registerText}>Não possui uma conta? Cadastre-se</Text>
                     </TouchableOpacity>
 

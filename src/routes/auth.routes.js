@@ -67,63 +67,48 @@ const CustomDrawerContent = (props) => {
         {/* Ícone de usuário */}
         <Icon name="user" color="white" size={30} style={styles.drawerUserIcon} />
         <TouchableOpacity>
-
           <View style={styles.userInfo}>
-
             <Text
-              style={[styles.drawerHeaderText, styles.linkText]} 
-             onPress={() => props.navigation.navigate('Perfil')}
+              style={[styles.drawerHeaderText, styles.linkText]}
+              onPress={() => props.navigation.navigate('Perfil')}
               >
+                
               {userName}
             </Text>
-
-            <Text
-             style={[styles.drawerSubHeaderText, styles.linkText]}
-
-              >
+            <Text style={[styles.drawerSubHeaderText, styles.linkText]}>
               {userEmail}
             </Text>
-
           </View>
-
         </TouchableOpacity>
-
         <TouchableOpacity onPress={() => props.navigation.navigate('Perfil')}>
           <Icon name="chevron-down" color="white" size={13} style={styles.drawerDownIcon} />
         </TouchableOpacity>
-
       </View>
-
       <CustomDrawerItem
         label="Início"
         onPress={() => props.navigation.navigate('Início')}
         icon="home"
       />
-
       <CustomDrawerItem
         label="Funcionários"
         onPress={() => props.navigation.navigate('Funcionários')}
         icon="users"
       />
-
       <CustomDrawerItem
         label="E.P.I´s"
         onPress={() => props.navigation.navigate('EPI')}
         icon="shield"
       />
-
       <CustomDrawerItem
         label="Normas"
         onPress={() => props.navigation.navigate('Normas')}
         icon="book"
       />
-
       <CustomDrawerItem
         label="Sair"
         onPress={() => props.navigation.navigate('Logout')}
         icon="sign-out"
       />
-
     </DrawerContentScrollView>
   );
 };
@@ -139,7 +124,9 @@ function HomeStack() {
       <Drawer.Screen name="EPI" component={EPI} />
       <Drawer.Screen name="Normas" component={Normas} />
       <Drawer.Screen name="Logout" component={Logout} />
-      <Drawer.Screen name="Perfil" component={Perfil} />
+       <Drawer.Screen name="Perfil">
+        {props => <Perfil {...props} />}
+      </Drawer.Screen>
     </Drawer.Navigator>
   );
 }
@@ -189,7 +176,11 @@ export default function AuthStack() {
       />
     </Stack.Navigator>
   );
+
 }
+const updateUserName = (newName) => {
+  setUserName(newName);
+};
 
 const styles = StyleSheet.create({
   drawerHeader: {
