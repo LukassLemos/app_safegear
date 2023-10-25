@@ -1,183 +1,210 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Modal  } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
 import * as Animatable from 'react-native-animatable';
-
 import { useNavigation } from '@react-navigation/native';
-
 import firebase from '../../services/firebaseConnection';
 
+export default function SignIn() {
+  const [aviso, setAviso] = useState('');
+  const [mensagem, setMensagem] = useState('');
+  const [senhaInvalida, setSenhaInvalida] = useState(false); // Estado para controlar a exibição da mensagem de erro da senha
+  const [emailVazio, setEmailVazio] = useState(false); // Estado para controlar a exibição da mensagem de campo vazio do email
+  const [nomeVazio, setNomeVazio] = useState(false); // Estado para controlar a exibição da mensagem de campo vazio do nome
 
-export default function SignIn(){
+  const navigation = useNavigation();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [hidePass, setHidePass] = useState(true); // Estado para ocultar/mostrar a senha
 
-    const [aviso, setAviso] = useState('');
-    const [mensagem, setMensagem] = useState('');
+  const MENSAGEM_CADASTRO_SUCESSO = 'Cadastro feito com sucesso';
 
-    const navigation = useNavigation();
-    const [input, setInput] = useState('');
-    const [hidePass, setHidePass] = useState(true);
+  const setMensagemModal = (msg) => {
+    setModalVisible(true);
+    setMensagem(msg);
+  };
 
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+  const setAvisoModal = (aviso) => {
+    setModalVisible(true);
+    setAviso(aviso);
+  };
 
-    const [modalVisible, setModalVisible] = useState(false);
+  const resetMensagens = () => {
+    setAviso('');
+    setMensagem('');
+  };
 
-    const MENSAGEM_CADASTRO_SUCESSO = 'Cadastro feito com sucesso';
+  function handleSignIn() {
+    // Verifica se o campo de nome e email estão vazios
+    if (name.trim() === '' && email.trim() === '') {
+      setNomeVazio(true);
+      setEmailVazio(true);
+      return;
+    } else if (name.trim() === '') {
+      setNomeVazio(true);
+      return;
+    } else if (email.trim() === '') {
+      setEmailVazio(true);
+      return;
+    }
 
-    const setMensagemModal = (msg) => {
-        setModalVisible(true);
-        setMensagem(msg);
-      };
-    
-      const setAvisoModal = (aviso) => {
-        setModalVisible(true);
-        setAviso(aviso);
-      };
-    
-      const resetMensagens = () => {
-        setAviso('');
-        setMensagem('');
-      };
+    // Verifica se a senha atende aos critérios
+    if (password.length < 8 || !/\d/.test(password) || !/[a-zA-Z]/.test(password)) {
+      setSenhaInvalida(true);
+      return;
+    }
 
-function handleSignIn() {
-  firebase
-    .auth()
-    .createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      // Atualize o nome do usuário no Firebase
-      userCredential.user.updateProfile({
-        displayName: name,
-      });
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        // Atualize o nome do usuário no Firebase
+        userCredential.user.updateProfile({
+          displayName: name,
+        });
 
-      setMensagemModal('Cadastro feito com sucesso'),
-        setEmail(''),
-        setPassword(''),
+        setMensagemModal('Cadastro feito com sucesso');
+        setEmail('');
+        setPassword('');
         setName('');
 
-      setTimeout(() => {
-        setModalVisible(true);
-        navigation.navigate('Login');
-      }, 2000);
-    })
-    .catch((error) => {
-      if (error.code === 'auth/email-already-in-use') {
-        console.log('email já existe');
-        setAvisoModal('Este email já está sendo usado');
-        setModalVisible(true);
-      }
+        setTimeout(() => {
+          setModalVisible(true);
+          navigation.navigate('Login');
+        }, 2000);
+      })
+      .catch((error) => {
+        if (error.code === 'auth/email-already-in-use') {
+          console.log('email já existe');
+          setAvisoModal('Este email já está sendo usado');
+          setModalVisible(true);
+        }
 
-      if (error.code === 'auth/invalid-email') {
-        console.log('Email inválido');
-        setAvisoModal('Digite um email válido');
-        setModalVisible(true);
-      }
-    });
-}
-    
-    
-    return (
-        <KeyboardAvoidingView
-            style={styles.container}
+        if (error.code === 'auth/invalid-email') {
+          console.log('Email inválido');
+          setAvisoModal('Digite um email válido');
+          setModalVisible(true);
+        }
+      });
+  }
+
+  return (
+    <KeyboardAvoidingView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(false);
+          }}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              {aviso ? (
+                <>
+                  <Text style={styles.modalText}>{aviso}</Text>
+                  <TouchableOpacity
+                    style={styles.modalButton}
+                    onPress={() => {
+                      setModalVisible(false);
+                    }}
+                  >
+                    <Text style={styles.modalButtonText}>OK</Text>
+                  </TouchableOpacity>
+                </>
+              ) : null}
+              {mensagem ? (
+                <Text style={styles.modalTextmsg}>{mensagem}</Text>
+              ) : null}
+            </View>
+          </View>
+        </Modal>
+
+        <Animatable.View animation="fadeInLeft" delay={900} style={styles.containerHeader}>
+          <Text style={styles.message}>Faça seu cadastro</Text>
+        </Animatable.View>
+
+        <Animatable.View animation="fadeInUp" style={styles.containerForm}>
+          <Text style={styles.title}>Nome</Text>
+          <TextInput
+            placeholder="Digite seu nome..."
+            value={name}
+            onChangeText={(text) => {
+              setName(text);
+              setNomeVazio(false); // Limpa a mensagem de campo vazio ao digitar
+            }}
+            style={styles.input}
+          />
+
+          {nomeVazio && (
+            <Text style={styles.aviso}>
+              Campo vazio. Digite o nome.
+            </Text>
+          )}
+
+          <Text style={styles.title}>Email</Text>
+          <TextInput
+            placeholder="Digite um email..."
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              setEmailVazio(false); // Limpa a mensagem de campo vazio ao digitar
+            }}
+            style={styles.input}
+          />
+
+          {emailVazio && (
+            <Text style={styles.aviso}>
+              Campo vazio. Digite um email válido.
+            </Text>
+          )}
+
+          <Text style={styles.title}>Senha</Text>
+          <View style={styles.inputArea}>
+            <TextInput
+              placeholder="Informe sua senha..."
+              style={styles.input}
+              secureTextEntry={hidePass} // Use o estado para ocultar/mostrar a senha
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+            />
+            <TouchableOpacity
+              style={styles.icon}
+              onPress={() => setHidePass(!hidePass)} // Alternar a visibilidade da senha
             >
-            <ScrollView
-                contentContainerStyle={styles.scrollContainer}
-                keyboardShouldPersistTaps="handled"
-                >
-                
-                <Modal   
-                    animationType="slide"
-                    transparent={true}
-                    visible={modalVisible}
-                    onRequestClose={() => { setModalVisible(false) }}
-                    >
-                    <View style={styles.modalContainer}>
-                        <View style={styles.modalContent}>
-                            {aviso ? (
-                            <>
-                            <Text style={styles.modalText}>{aviso}</Text>
-                            <TouchableOpacity
-                                style={styles.modalButton}
-                                onPress={() => { setModalVisible(false) }}
-                                >
-                                <Text style={styles.modalButtonText}>OK</Text>
-                            </TouchableOpacity>
-                            </>
-                            ) : null}
-                            {mensagem ? (
-                            <Text style={styles.modalTextmsg}>{mensagem}</Text>
-                            ) : null}
-                        </View>
-                    </View>
-                </Modal>
+              {hidePass ? (
+                <Ionicons name="eye" color="#121212" size={25} />
+              ) : (
+                <Ionicons name="eye-off" color="#121212" size={25} />
+              )}
+            </TouchableOpacity>
+          </View>
 
-                <Animatable.View animation="fadeInLeft" delay={900} style={styles.containerHeader}>
-                        <Text style={styles.message}>Faça seu cadastro</Text>
-                    </Animatable.View>
+          {senhaInvalida && (
+            <Text style={styles.aviso}>
+              A senha deve ter no mínimo 8 caracteres, incluindo letras e números.
+            </Text>
+          )}
 
-                <Animatable.View animation="fadeInUp" style={styles.containerForm}>
+          <TouchableOpacity style={styles.button} onPress={handleSignIn}>
+            <Text style={styles.buttonText}>Cadastrar</Text>
+          </TouchableOpacity>
 
-                    <Text style={styles.title}>Nome</Text>
-                    <TextInput
-                        placeholder="Digite seu nome..."
-                        value={name}
-                        onChangeText={ (text) => setName (text) }
-                        style={styles.input}
-                    />   
-
-                    <Text style={styles.title}>Email</Text>
-                    <TextInput
-                        placeholder="Digite um email..."
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoComplete="email"
-                        value={email}
-                        onChangeText={ (text) => setEmail(text) }
-                        style={styles.input}
-                    />      
-
-                    <Text style={styles.title}>Senha</Text>
-                    <View style={styles.inputArea}>
-                        <TextInput
-                            placeholder="Informe sua senha..."
-                            style={styles.input}
-                            //value={input}
-                           // onChangeText={ ( texto) => setInput(texto) }
-                            secureTextEntry={hidePass}
-                            value={password}
-                            onChangeText={ ( texto) => setPassword(texto) }
-                        />
-
-                        <TouchableOpacity style={styles.icon} onPress={ () => setHidePass(!hidePass)}>
-                        {hidePass ?
-                            <Ionicons name="eye" color="#121212" size={25} />
-                            :
-                            <Ionicons name="eye-off" color="#121212" size={25} />
-                        }
-                        </TouchableOpacity>
-
-                    </View>
-
-                    <TouchableOpacity 
-                        style={styles.button}
-                        onPress={handleSignIn}
-                        
-                        >
-                        <Text style={styles.buttonText}>Cadastrar</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity 
-                        style={styles.buttonRegister}
-                        onPress={ () => navigation.navigate('Login')}
-                        >
-                        <Text style={styles.registerText}>Já tenho uma conta</Text>
-                    </TouchableOpacity>
-                </Animatable.View>
-            </ScrollView>   
-        </KeyboardAvoidingView>   
-    );
+          <TouchableOpacity style={styles.buttonRegister} onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.registerText}>Já tenho uma conta</Text>
+          </TouchableOpacity>
+        </Animatable.View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
 }
+
 
 const styles = StyleSheet.create({
     container:{
