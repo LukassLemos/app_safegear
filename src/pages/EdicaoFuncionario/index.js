@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import firebase from 'firebase';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-export default function EdicaoFuncionario({ navigation }) {
-  const [funcionarios, setFuncionarios] = useState([]);
+export default function EdicaoFuncionario({ route, navigation }) {
+  const { funcionarioId } = route.params; // Obtenha o ID do funcionário da rota
+  const [funcionario, setFuncionario] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [funcionarioParaRemover, setFuncionarioParaRemover] = useState(null);
 
   useEffect(() => {
     const funcionariosRef = firebase.database().ref('funcionarios');
@@ -15,15 +15,20 @@ export default function EdicaoFuncionario({ navigation }) {
       const funcionariosData = snapshot.val();
 
       if (funcionariosData) {
-        const funcionariosArray = Object.entries(funcionariosData).map(([id, funcionario]) => ({
-          id,
-          nome: funcionario['1'].valor,
-          registro: funcionario['0'].valor,
-          // Continue para outros campos conforme necessário
-        }));
-        setFuncionarios(funcionariosArray);
+        const funcionarioEncontrado = funcionariosData[funcionarioId];
+
+        if (funcionarioEncontrado) {
+          setFuncionario({
+            id: funcionarioId,
+            nome: funcionarioEncontrado['1'].valor,
+            registro: funcionarioEncontrado['0'].valor,
+            // Continue para outros campos conforme necessário
+          });
+        } else {
+          setFuncionario(null); // Funcionário não encontrado
+        }
       } else {
-        setFuncionarios([]);
+        setFuncionario(null);
       }
     };
 
@@ -32,31 +37,32 @@ export default function EdicaoFuncionario({ navigation }) {
     });
 
     return () => funcionariosRef.off('value', handleData);
-  }, []);
+  }, [funcionarioId]);
 
   const navigateToEdicao = (id) => {
     navigation.navigate('VisualizarFunc', { funcionarioId: id });
   };
 
-  const handleRemover = (id) => {
-    setFuncionarioParaRemover(id);
-    setModalVisible(true);
+  const handleRemover = () => {
+    if (funcionario) {
+      setModalVisible(true);
+    }
   };
 
   const confirmarRemocao = () => {
-    if (funcionarioParaRemover) {
+    if (funcionario) {
       // Implemente a lógica de remoção no Firebase
-      firebase.database().ref(`funcionarios/${funcionarioParaRemover}`).remove()
+      firebase.database().ref(`funcionarios/${funcionario.id}`).remove()
         .then(() => {
           console.log('Funcionário removido com sucesso');
           setModalVisible(false);
+          navigation.goBack(); // Volte para a tela anterior após a remoção
         })
         .catch((error) => console.error('Erro ao remover funcionário:', error));
     }
   };
 
   const cancelarRemocao = () => {
-    setFuncionarioParaRemover(null);
     setModalVisible(false);
   };
 
@@ -70,29 +76,26 @@ export default function EdicaoFuncionario({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.text}>Funcionários Cadastrados</Text>
+      <Text style={styles.text}>Funcionário</Text>
 
-      {/* Lista de funcionários */}
-      <FlatList
-        data={funcionarios}
-        keyExtractor={(item) => item.registro.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.funcionarioItem} key={item.registro.toString()}>
-            <Text style={styles.funcionarioRegistro}>{item.registro}</Text>
-            <Text style={styles.funcionarioNome}>{item.nome}</Text>
+      {funcionario ? (
+        <View style={styles.funcionarioItem}>
+          <Text style={styles.funcionarioRegistro}>{funcionario.registro}</Text>
+          <Text style={styles.funcionarioNome}>{funcionario.nome}</Text>
 
-            {/* Botões de Editar e Remover */}
-            <View style={styles.buttonsContainer}>
-              <TouchableOpacity style={styles.button} onPress={() => navigateToEdicao(item.id)}>
-                <Text style={styles.buttonText}>Editar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.button, styles.buttonRemover]} onPress={() => handleRemover(item.id)}>
-                <Text style={styles.buttonText}>Remover</Text>
-              </TouchableOpacity>
-            </View>
+          {/* Botões de Editar e Remover */}
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity style={styles.button} onPress={() => navigateToEdicao(funcionario.id)}>
+              <Text style={styles.buttonText}>Editar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.button, styles.buttonRemover]} onPress={handleRemover}>
+              <Text style={styles.buttonText}>Remover</Text>
+            </TouchableOpacity>
           </View>
-        )}
-      />
+        </View>
+      ) : (
+        <Text style={styles.errorText}>Funcionário não encontrado.</Text>
+      )}
 
       {/* Modal de Confirmação */}
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
@@ -220,7 +223,6 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     padding: 10,
-    borderRadius: 5,
     marginHorizontal: 5,
   },
 
@@ -238,5 +240,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-});
 
+  errorText: {
+    fontSize: 16,
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+});

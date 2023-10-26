@@ -10,13 +10,13 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_DOMINIO.firebaseapp.com",
-  databaseURL: "https://SEU_DOMINIO.firebaseio.com",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_BUCKET.appspot.com",
-  messagingSenderId: "SEU_SENDER_ID",
-  appId: "SEU_APP_ID"
+  apiKey: "AIzaSyAUlLzng_p2B_TTsxoFwGQPfZfWvf41Ui0",
+  authDomain: "safegear-7e6ac.firebaseapp.com",
+  databaseURL: "https://safegear-7e6ac-default-rtdb.firebaseio.com/",
+  projectId: "safegear-7e6ac",
+  storageBucket: "safegear-7e6ac.appspot.com",
+  messagingSenderId: "998569861476",
+  appId: "1:998569861476:web:40533585da70e0fc755a71"
 };
 
 if (!firebase.apps.length) {
@@ -47,10 +47,20 @@ export default function Perfil() {
         .then((doc) => {
           if (doc.exists && doc.data().profileImageURL) {
             setAvatarSource(doc.data().profileImageURL);
+
+            // Carregue a imagem do Firebase Storage usando a URL
+            const storageRef = firebase.storage().refFromURL(doc.data().profileImageURL);
+            storageRef.getDownloadURL()
+              .then((url) => {
+                setAvatarSource(url);
+              })
+              .catch((error) => {
+                console.error('Erro ao carregar a imagem do Firebase Storage:', error);
+              });
           }
         })
         .catch((error) => {
-          console.error('Erro ao recuperar a URL da imagem:', error);
+          console.error('Erro ao recuperar a URL da imagem do Firestore:', error);
         });
     }
   }, []);
@@ -250,13 +260,13 @@ export default function Perfil() {
         </TouchableOpacity>
       )}
       {avatarSource && (
-        <TouchableOpacity onPress={handleRemoveProfilePhoto} style={styles.button}>
+        <TouchableOpacity onPress={handleRemoveProfilePhoto} style={styles.buttonremover}>
           <Text style={styles.buttonText}>Remover Foto de Perfil</Text>
         </TouchableOpacity>
       )}
       <View>
         <View style={{ borderBottomWidth: 1, borderBottomColor: 'black', marginBottom: 30, marginTop: 20 }}></View>
-        <Text style={styles.label}>Nome</Text>
+        <Text style={styles.labelnome}>Nome</Text>
         {isEditingName ? (
           <TextInput
             style={styles.input}
@@ -268,7 +278,7 @@ export default function Perfil() {
         )}
       </View>
       <View>
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.labelemail}>Email</Text>
         {isEditingName ? (
           <TextInput
             style={styles.input}
@@ -330,15 +340,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     padding: 16,
   },
+
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
   },
-  label: {
+
+  labelnome: {
     fontSize: 18,
     marginBottom: 4,
+    marginTop: -20
   },
+
+  labelemail: {
+    fontSize: 18,
+    marginBottom: 4,
+    marginTop: 1
+  },
+
   input: {
     borderWidth: 1,
     borderColor: '#888',
@@ -346,67 +366,80 @@ const styles = StyleSheet.create({
     padding: 8,
     marginBottom: 12,
   },
+
   text: {
     fontSize: 18,
     marginBottom: 12,
   },
+
   button: {
     backgroundColor: '#238dd1',
     borderRadius: 4,
     padding: 10,
     alignItems: 'center',
   },
+
   buttonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
   },
+
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   modalContent: {
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 10,
     elevation: 5,
   },
+
   modalText: {
     fontSize: 18,
     marginBottom: 10,
     textAlign: 'center',
   },
+
   modalButton: {
     padding: 10,
     borderRadius: 5,
     margin: 5,
   },
+
   modalButtonSim: {
     backgroundColor: 'green',
     padding: 15,
   },
+
   modalButtonCancelar: {
     backgroundColor: 'red',
     padding: 15,
   },
+
   modalButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
   },
+
   modalButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+
   botaoexcluir: {
     fontSize: 18,
-    marginTop: 30,
+    marginTop: 20,
   },
+
   icone: {
     marginRight: 10,
-    marginTop: 32,
+    marginTop: 22,
     marginLeft: 70,
   },
   avatar: {
@@ -414,15 +447,27 @@ const styles = StyleSheet.create({
     height: 130,
     borderRadius: 75,
     marginBottom: 20,
-    marginLeft: 120,
-    marginTop: 15
+    marginLeft: 100,
+    marginTop: 10
   },
+
   cameraIconContainer: {
     position: 'relative',
   },
+
   cameraIcon: {
     marginTop: 20,
     marginLeft: 170
   },
+
+  buttonremover: {
+  backgroundColor: '#238dd1',
+  borderRadius: 4,
+  padding: 5,
+  alignItems: 'center',
+  marginLeft:60,
+  marginRight:60
+  },
+
 });
 

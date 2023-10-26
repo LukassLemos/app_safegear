@@ -80,9 +80,9 @@ export default function Funcionarios({ navigation }) {
   const handleSearch = (query) => {
     setSearchQuery(query);
 
-    // Filtrar funcionários com base na consulta
+    // Filtrar funcionários com base nas primeiras letras da consulta
     const filteredFuncionarios = originalFuncionarios.filter((funcionario) =>
-      funcionario.nome.toLowerCase().includes(query.toLowerCase())
+      funcionario.nome.toLowerCase().startsWith(query.toLowerCase())
     );
 
     setFuncionarios(filteredFuncionarios);
@@ -193,4 +193,3 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
 });
-

@@ -50,7 +50,7 @@ export default function VisualizarFunc({ route, navigation }) {
         setModalVisible(true);
         setTimeout(() => {
           setModalVisible(false);
-          navigation.navigate('EdicaoFuncionario');
+          navigation.navigate('EdicaoFuncionario', { funcionarioId: funcionarioId });
         }, 2400);
       })
       .catch((error) => console.error('Erro ao atualizar funcionário:', error));
@@ -126,19 +126,19 @@ export default function VisualizarFunc({ route, navigation }) {
               />
             ) : campo === 'Data de Nascimento' ? (
               <TextInputMask
-                style={styles.maskedInput}
-                type={'datetime'}
-                options={{
-                  format: 'DD/MM/YYYY',
-                }}
-                value={valor}
-                onChangeText={(novoValor) => {
-                  const novoFuncionario = funcionario.map((c, i) =>
-                    i === index ? { ...c, valor: novoValor } : c
-                  );
-                  setFuncionario(novoFuncionario);
-                }}
-              />
+  style={styles.maskedInput}
+  type={'datetime'}
+  options={{
+    format: 'DD/MM/YYYY',
+  }}
+  value={valor}
+  onChangeText={(novoValor) => {
+    const novoFuncionario = funcionario.map((c, i) =>
+      i === index ? { ...c, valor: novoValor } : c
+    );
+    setFuncionario(novoFuncionario);
+  }}
+/>
             ) : campo === 'Email' ? (
               <TextInput
                 style={styles.input}
@@ -282,3 +282,4 @@ const styles = StyleSheet.create({
   },
 });
 
+  
