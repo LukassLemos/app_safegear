@@ -30,6 +30,7 @@ export default function Perfil() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [avatarSource, setAvatarSource] = useState(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     const user = firebase.auth().currentUser;
@@ -42,25 +43,17 @@ export default function Perfil() {
         setEmail(email);
       }
 
-      // Recupere a URL da imagem do Firestore associada ao usuário
-      firebase.firestore().collection('users').doc(user.uid).get()
-        .then((doc) => {
-          if (doc.exists && doc.data().profileImageURL) {
-            setAvatarSource(doc.data().profileImageURL);
-
-            // Carregue a imagem do Firebase Storage usando a URL
-            const storageRef = firebase.storage().refFromURL(doc.data().profileImageURL);
-            storageRef.getDownloadURL()
-              .then((url) => {
-                setAvatarSource(url);
-              })
-              .catch((error) => {
-                console.error('Erro ao carregar a imagem do Firebase Storage:', error);
-              });
-          }
+      // Verifique se há uma imagem de perfil no Firebase Storage associada a este usuário
+      const storageRef = firebase.storage().ref(`profileImages/${user.uid}`);
+      storageRef.getDownloadURL()
+        .then((url) => {
+          // A imagem existe, então atualize o estado com a URL
+          setAvatarSource(url);
+          setImageLoaded(true);
         })
         .catch((error) => {
-          console.error('Erro ao recuperar a URL da imagem do Firestore:', error);
+          // Se não houver imagem de perfil, não faça nada
+          setImageLoaded(true);
         });
     }
   }, []);
@@ -248,7 +241,7 @@ export default function Perfil() {
 
   return (
     <View style={styles.container}>
-      {avatarSource ? (
+      {imageLoaded && avatarSource ? (
         <TouchableOpacity onPress={showImagePickerOptions}>
           <Image source={{ uri: avatarSource }} style={styles.avatar} />
         </TouchableOpacity>
@@ -470,4 +463,3 @@ const styles = StyleSheet.create({
   },
 
 });
-
