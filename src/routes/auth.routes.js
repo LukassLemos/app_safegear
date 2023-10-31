@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'; // Certifique-se de in
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import firebase from 'firebase'; 
+import { StatusBar } from 'expo-status-bar';
 
 import Welcome from '../pages/Welcome';
 import Login from '../pages/Login';
@@ -20,6 +21,9 @@ import CadastroFuncionario from '../pages/CadastroFuncionario';
 import EdicaoFuncionario from '../pages/EdicaoFuncionario';
 import VisualizarFunc from '../pages/VisualizarFunc';
 import Perfil from '../pages/Perfil'; 
+import EntregaEpis from '../pages/EntregaEpis';
+import Lista from '../pages/Lista';
+import EdicaoEpis from '../pages/EdicaoEpis';
 
 
 const Stack = createNativeStackNavigator();
@@ -36,6 +40,7 @@ const CustomDrawerItem = ({ label, onPress, icon }) => {
   };
 
   return (
+    
     <DrawerItem
       label={label}
       onPress={onPress}
@@ -173,6 +178,21 @@ export default function AuthStack() {
         name="VisualizarFunc"
         component={VisualizarFunc}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EntregaEpis"
+        component={EntregaEpis}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Lista"
+        component={Lista}
+        options={{ headerShown: true}}
+      />
+      <Stack.Screen
+        name="EdicaoEpis"
+        component={EdicaoEpis}
+        options={{ headerShown: false}}
       />
     </Stack.Navigator>
   );

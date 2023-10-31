@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome'; // Você pode escolher um ícone da biblioteca de ícones que preferir.
 
 export default function Início({ navigation }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Bem-vindo à Tela Inicial</Text>
+      <Icon name="wrench" size={100} color="gray" />
+      <Text style={styles.text}>Em Construção</Text>
     </View>
   );
 }
@@ -17,5 +19,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 20,
+    marginTop: 50
   },
 });
