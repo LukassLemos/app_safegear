@@ -51,8 +51,11 @@ export default function EdicaoFuncionario({ route, navigation }) {
 
   const confirmarRemocao = () => {
     if (funcionario) {
-      // Implemente a lógica de remoção no Firebase
-      firebase.database().ref(`funcionarios/${funcionario.id}`).remove()
+      // Crie uma referência para o nó 'funcionarios' no seu banco de dados Firebase
+      const funcionariosRef = firebase.database().ref('funcionarios');
+  
+      // Use o funcionarioId para remover o registro do funcionário
+      funcionariosRef.child(funcionario.id).remove()
         .then(() => {
           console.log('Funcionário removido com sucesso');
           setModalVisible(false);

@@ -312,7 +312,6 @@ export default function CadastroFuncionario() {
   );
 }
 
-//Estilos
 
 const styles = StyleSheet.create({
   container: {

@@ -24,6 +24,7 @@ import Perfil from '../pages/Perfil';
 import EntregaEpis from '../pages/EntregaEpis';
 import Lista from '../pages/Lista';
 import EdicaoEpis from '../pages/EdicaoEpis';
+import Assinatura from '../pages/Assinatura';
 
 
 const Stack = createNativeStackNavigator();
@@ -192,6 +193,11 @@ export default function AuthStack() {
       <Stack.Screen
         name="EdicaoEpis"
         component={EdicaoEpis}
+        options={{ headerShown: false}}
+      />
+      <Stack.Screen
+        name="Assinatura"
+        component={Assinatura}
         options={{ headerShown: false}}
       />
     </Stack.Navigator>

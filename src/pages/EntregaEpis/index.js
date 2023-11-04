@@ -23,7 +23,8 @@ export default function EntregaEpis({ route }) {
   const [previsaoSubstituicao, setPrevisaoSubstituicao] = useState('');
   const [showFormInfo, setShowFormInfo] = useState(false);
   const [showEmptyFieldsModal, setShowEmptyFieldsModal] = useState(false);
-
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  
   const handleSalvar = () => {
     // Crie uma referência para o nó "epis" no seu banco de dados Firebase
     const database = Firebase.database();
@@ -33,12 +34,14 @@ export default function EntregaEpis({ route }) {
     const novoEPI = {
       funcionarios: funcionarios,
       dataEntrega: dataEntrega,
-      epis: epis, // Alterado para incluir a lista de EPIs
+      epis: epis,
+      
     };
 
     episRef.push(novoEPI).then(() => {
       // Tratamento de sucesso - você pode adicionar lógica de sucesso aqui
     });
+
 
     // Limpe os campos após salvar os dados
     setEpis([]); // Limpe a lista de EPIs
@@ -115,6 +118,7 @@ export default function EntregaEpis({ route }) {
     navigation.navigate('Lista');
   };
 
+
   const motivoOptions = ['Entrega', 'Dano', 'Substituição', 'Perda'];
 
   return (
@@ -138,6 +142,23 @@ export default function EntregaEpis({ route }) {
         </View>
       </Modal>
 
+      <Modal
+         visible={showConfirmationModal}
+         animationType="slide"
+          transparent={true}
+        >
+        <View style={styles.modalContainer1}>
+          <View style={styles.modalContent1}>
+            <Text style={styles.text}>
+              Peça ao trabalhador que assine para confirmar a entrega do equipamento.
+            </Text>
+            <TouchableOpacity style={styles.buttonok1} onPress={() => navigation.navigate('Assinatura')}>
+              <Text style={styles.buttonText1}>Assinatura</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.button}
@@ -147,7 +168,7 @@ export default function EntregaEpis({ route }) {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.buttonCad} onPress={handleSalvar}>
+      <TouchableOpacity style={styles.buttonCad} onPress={() => setShowConfirmationModal(true)}>
         <Text style={styles.buttonTextCad}>FINALIZAR CADASTRO</Text>
       </TouchableOpacity>
 
