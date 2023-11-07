@@ -23,8 +23,8 @@ import VisualizarFunc from '../pages/VisualizarFunc';
 import Perfil from '../pages/Perfil'; 
 import EntregaEpis from '../pages/EntregaEpis';
 import Lista from '../pages/Lista';
-import EdicaoEpis from '../pages/EdicaoEpis';
-import Assinatura from '../pages/Assinatura';
+import ExcluiRegistro from '../pages/ExcluiRegistro';
+import EditarEpis from '../pages/EditarEpis';
 
 
 const Stack = createNativeStackNavigator();
@@ -179,6 +179,7 @@ export default function AuthStack() {
         name="VisualizarFunc"
         component={VisualizarFunc}
         options={{ headerShown: false }}
+        
       />
       <Stack.Screen
         name="EntregaEpis"
@@ -190,14 +191,14 @@ export default function AuthStack() {
         component={Lista}
         options={{ headerShown: true}}
       />
-      <Stack.Screen
-        name="EdicaoEpis"
-        component={EdicaoEpis}
+       <Stack.Screen
+        name="ExcluiRegistro"
+        component={ExcluiRegistro}
         options={{ headerShown: false}}
       />
-      <Stack.Screen
-        name="Assinatura"
-        component={Assinatura}
+        <Stack.Screen
+        name="EditarEpis"
+        component={EditarEpis}
         options={{ headerShown: false}}
       />
     </Stack.Navigator>

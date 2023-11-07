@@ -52,7 +52,7 @@ export default function CadastroFuncionario() {
     { campo: 'registro', valor: registro },
     { campo: 'nome', valor: nome },
     { campo: 'cpf', valor: cpf },
-    { campo: 'data de Nascimento', valor: dataNascimento },
+    { campo: 'dataNascimento', valor: dataNascimento },
     { campo: 'celular', valor: celular },
 
     { campo: 'setor', valor: setor },
@@ -98,7 +98,7 @@ export default function CadastroFuncionario() {
           { campo: 'Registro', valor: registro },
           { campo: 'Nome', valor: nome },
           { campo: 'Cpf', valor: cpf },
-          { campo: 'Data de Nascimento', valor: dataNascimento },
+          { campo: 'Data Nascimento', valor: dataNascimento },
           { campo: 'Celular', valor: celular },
           { campo: 'Telefone', valor: telefone },
           { campo: 'Email', valor: email },
@@ -312,6 +312,7 @@ export default function CadastroFuncionario() {
   );
 }
 
+//Estilos
 
 const styles = StyleSheet.create({
   container: {

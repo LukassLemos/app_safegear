@@ -8,6 +8,7 @@ export default function Funcionarios({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchVisible, setSearchVisible] = useState(false);
   const [originalFuncionarios, setOriginalFuncionarios] = useState([]);
+  const [noFuncionariosMessage, setNoFuncionariosMessage] = useState('');
 
   const loadData = useCallback(() => {
     const funcionariosRef = firebase.database().ref('funcionarios');
@@ -25,10 +26,12 @@ export default function Funcionarios({ navigation }) {
         console.log('Funcionarios do Firebase:', funcionariosArray);
         setFuncionarios(funcionariosArray);
         setOriginalFuncionarios(funcionariosArray); // Armazenar uma cópia original para a pesquisa
+        setNoFuncionariosMessage('');
       } else {
         console.log('Nenhum dado de funcionário encontrado no Firebase.');
         setFuncionarios([]);
         setOriginalFuncionarios([]);
+        setNoFuncionariosMessage('Nenhum funcionário encontrado');
       }
     };
 
@@ -104,21 +107,24 @@ export default function Funcionarios({ navigation }) {
 
       <Text style={styles.text}>Lista de Funcionários</Text>
 
-      {/* Lista de funcionários */}
-      <FlatList
-        data={funcionarios}
-        keyExtractor={(item) => item.registro.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.epiItem} onPress={() => navigateToEdicao(item.id)}>
-            <View key={item.registro.toString()}>
-              <Text style={styles.funcionarioRegistro}>{item.registro}</Text>
-              <Text style={styles.funcionarioNome}>{item.nome}</Text>
-              {/* Adicione outros campos conforme necessário */}
-            </View>
-          </TouchableOpacity>
-        )}
-      />
-
+      {noFuncionariosMessage ? (
+        <Text style={styles.noFuncionariosMessage}>{noFuncionariosMessage}</Text>
+      ) : (
+        <FlatList
+          data={funcionarios}
+          keyExtractor={(item) => item.registro.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity style={styles.epiItem} onPress={() => navigateToEdicao(item.id)}>
+              <View key={item.registro.toString()}>
+                <Text style={styles.funcionarioRegistro}>{item.registro}</Text>
+                <Text style={styles.funcionarioNome}>{item.nome}</Text>
+                {/* Add other fields as needed */}
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      )}
+    
       {/* Botão de adicionar funcionário */}
       <TouchableOpacity style={styles.addButton} onPress={navigateToCadastro}>
         <Text style={styles.addButtonText}>+</Text>
@@ -200,5 +206,13 @@ const styles = StyleSheet.create({
     margin: 8,
     padding: 16,
     borderRadius: 8,
+  },
+
+  noFuncionariosMessage: {
+
+    fontSize: 10,
+    marginStart: -10,
+    textAlign: 'center',
+    marginTop: 200,
   },
 });

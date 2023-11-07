@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'; 
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Modal, TouchableHighlight } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import Firebase from 'firebase';
 
-const EPI = ({ navigation }) => {
+
+const EPI = ({ navigation, route }) => {
   const [episData, setEpisData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchVisible, setSearchVisible] = useState(false);
   const [originalEpisData, setOriginalEpisData] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [isRemoveModalVisible, setRemoveModalVisible] = useState(false);
 
   const loadData = () => {
     const database = Firebase.database();
@@ -21,11 +25,11 @@ const EPI = ({ navigation }) => {
       });
 
       if (episArray.length > 0) {
-        // Atualize o estado originalEpisData com os dados do Firebase
         setOriginalEpisData(episArray);
-        // Atualize também o estado episData com os dados originais
         setEpisData(episArray);
-      }
+      } else {
+      setEpisData([]); // Se não houver itens, limpe a lista
+    }
     });
   };
 
@@ -38,7 +42,7 @@ const EPI = ({ navigation }) => {
       headerRight: () => (
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={() => setSearchVisible(!searchVisible)}>
-            <Icon name={searchVisible ? 'close' : 'search'} size={24} style={styles.iconsearch}  />
+            <Icon name={searchVisible ? 'close' : 'search'} size={24} style={styles.iconsearch} />
           </TouchableOpacity>
           <TouchableOpacity onPress={loadData}>
             <Icon name="refresh" size={24} style={styles.iconrefresh} />
@@ -48,6 +52,15 @@ const EPI = ({ navigation }) => {
     });
   }, [navigation, searchVisible]);
 
+  useEffect(() => {
+    loadData();
+    const intervalId = setInterval(loadData, 1000); // Atualiza a cada 1 minuto (ajuste conforme necessário)
+
+    return () => {
+      clearInterval(intervalId); // Limpa o intervalo quando o componente é desmontado
+    };
+  }, []);
+
   const navigateToEntrega = () => {
     navigation.navigate('EntregaEpis');
   };
@@ -55,7 +68,6 @@ const EPI = ({ navigation }) => {
   const handleSearch = (query) => {
     setSearchQuery(query);
 
-    // Filtrar os dados com base na consulta de pesquisa
     const filteredEpisData = originalEpisData.filter((epi) =>
       epi.funcionarios.toLowerCase().includes(query.toLowerCase())
     );
@@ -63,16 +75,35 @@ const EPI = ({ navigation }) => {
     setEpisData(filteredEpisData);
   };
 
-  const showDetails = (item) => {
-    // Implemente a lógica para mostrar os detalhes do registro.
-    console.log(item);
-    // Por exemplo, você pode navegar para outra tela para exibir os detalhes.
-    // navigation.navigate('Detalhes', { item });
+  const toggleModal = (item) => {
+    setSelectedItem(item);
+    setModalVisible(!isModalVisible);
   };
+
+  const showRemoveModal = (item) => {
+    setSelectedItem(item);
+    setRemoveModalVisible(true);
+  };
+  const handleDarBaixa = () => {
+    navigation.navigate('ExcluiRegistro', { selectedItem: selectedItem });
+    setModalVisible(false);
+  };
+
+  const handleEditar = () => {
+    navigation.navigate('EditarEpis', { selectedItem: selectedItem });
+    setModalVisible(false);
+  };
+
+  useEffect(() => {
+    loadData();
+    if (route.params && route.params.itemDeleted) {
+      // Se um item for excluído, atualize a lista
+      loadData();
+    }
+  }, [route.params]);
 
   return (
     <View style={styles.container}>
-      {/* Barra de pesquisa */}
       {searchVisible && (
         <TextInput
           style={styles.searchInput}
@@ -87,9 +118,9 @@ const EPI = ({ navigation }) => {
       {episData.length > 0 ? (
         <FlatList
           data={episData}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item, index, id) => index.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => showDetails(item)}>
+            <TouchableOpacity onPress={() => toggleModal(item)}>
               <View style={styles.epiItem}>
                 <Text style={styles.nome}>{item.funcionarios}</Text>
                 <Text>Data de Entrega: {item.dataEntrega}</Text>
@@ -110,8 +141,46 @@ const EPI = ({ navigation }) => {
       ) : (
         <View style={styles.noRecordsContainer}>
           <Text style={styles.noRecordsText}>Nenhum registro encontrado.</Text>
-         </View>
+        </View>
       )}
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+      >
+        <View style={styles.modalContainer}>
+          <TouchableOpacity
+            style={styles.modalOption}
+            onPress={handleEditar}
+          >
+            <Icon name="edit" size={24} style={styles.modalIcon} />
+            <Text>EDITAR</Text>
+            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.modalOption}
+            onPress={() => {
+              // Implemente a lógica para editar o item selecionado
+              setModalVisible(false);
+            }}
+          >
+            <Icon name="arrow-right" size={24} style={styles.modalIcon} />
+            <Text>TROCAR</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.modalOption}
+            onPress={handleDarBaixa}>
+            <Icon name="trash" size={24} style={styles.modalIcon} />
+            <Text>DAR BAIXA</Text>
+          </TouchableOpacity>
+          <TouchableHighlight
+            style={styles.closeButton}
+            onPress={() => setModalVisible(false)}
+          >
+            <Text>Fechar</Text>
+          </TouchableHighlight>
+        </View>
+      </Modal>
 
       <TouchableOpacity style={styles.addButton} onPress={navigateToEntrega}>
         <Text style={styles.addButtonText}>+</Text>
@@ -168,17 +237,15 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 1,
   },
-
-  iconrefresh:{
+  iconrefresh: {
     marginRight: 16,
     color: 'black',
-    marginRight:-2
+    marginRight: -2,
   },
-
   iconsearch: {
     marginRight: 16,
     color: 'black',
-    marginRight: 25
+    marginRight: 25,
   },
   epiInfoContainer: {
     marginTop: 8,
@@ -195,11 +262,74 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginStart: -10,
     textAlign: 'center',
-    marginTop: -30
+    marginTop: -30,
   },
-  prev:{
-    color:'red'
+  prev: {
+    color: 'red',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalOption: {
+    backgroundColor: 'white',
+    padding: 16,
+    margin: 10,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  modalIcon: {
+    marginRight: 8,
+  },
+  closeButton: {
+    backgroundColor: 'white',
+    padding: 16,
+    margin: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+  },
+  removeButton: {
+    backgroundColor: 'green',
+    padding: 16,
+    margin: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: 'red',
+    padding: 16,
+    margin: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  removeButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  cancelButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  modalContainer1: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    marginTop: 30,
+    borderRadius: 8, // Cantos arredondados
+    margin: 6, // Adicione esta linha para criar uma margem
+  },
+  topcontainer:{
+    fontSize:15,
+    fontWeight: 'bold',
   }
 });
 
 export default EPI;
+
+

@@ -4,9 +4,11 @@ import firebase from 'firebase';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 export default function EdicaoFuncionario({ route, navigation }) {
-  const { funcionarioId } = route.params; // Obtenha o ID do funcionário da rota
+  // Obtenha o ID do funcionário da rota
   const [funcionario, setFuncionario] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const { funcionarioId } = route.params || {};
+
 
   useEffect(() => {
     const funcionariosRef = firebase.database().ref('funcionarios');
@@ -24,8 +26,7 @@ export default function EdicaoFuncionario({ route, navigation }) {
             registro: funcionarioEncontrado['0'].valor,
             // Continue para outros campos conforme necessário
           });
-        } else {
-          setFuncionario(null); // Funcionário não encontrado
+      
         }
       } else {
         setFuncionario(null);

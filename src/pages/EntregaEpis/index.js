@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, FlatList, ScrollView  } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Modal, FlatList, ScrollView } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
@@ -23,34 +23,49 @@ export default function EntregaEpis({ route }) {
   const [previsaoSubstituicao, setPrevisaoSubstituicao] = useState('');
   const [showFormInfo, setShowFormInfo] = useState(false);
   const [showEmptyFieldsModal, setShowEmptyFieldsModal] = useState(false);
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [redirectToEPI, setRedirectToEPI] = useState(false);
+  const [showEPISelectWarning, setShowEPISelectWarning] = useState(false);
+  const [showInfoMissingWarning, setShowInfoMissingWarning] = useState(false);
+
   const handleSalvar = () => {
-    // Crie uma referência para o nó "epis" no seu banco de dados Firebase
+    if (epis.length === 0) {
+      setShowEPISelectWarning(true);
+      return;
+    }
+
+    if (!funcionarios || !dataEntrega) {
+      setShowInfoMissingWarning(true);
+      return;
+    }
+
     const database = Firebase.database();
     const episRef = database.ref('Cadastro de Epis');
 
-    // Crie um objeto com os dados a serem salvos
     const novoEPI = {
       funcionarios: funcionarios,
       dataEntrega: dataEntrega,
       epis: epis,
-      
     };
 
     episRef.push(novoEPI).then(() => {
-      // Tratamento de sucesso - você pode adicionar lógica de sucesso aqui
+      setShowSuccessModal(true);
+
+      setTimeout(() => {
+        setRedirectToEPI(true);
+      }, 3000);
     });
 
-
-    // Limpe os campos após salvar os dados
-    setEpis([]); // Limpe a lista de EPIs
+    setEpis([]);
     setCodigoEPI('');
     setNomeEPI('');
     setValidadeCA('');
     setQuantidade('');
     setMotivo('');
     setPrevisaoSubstituicao('');
+
+    setFuncionarios('');
+    setDataEntrega('');
   };
 
   const handleCadastro = () => {
@@ -62,7 +77,6 @@ export default function EntregaEpis({ route }) {
       !motivo ||
       !previsaoSubstituicao
     ) {
-      // Campos estão vazios, exibir o modal de aviso
       setShowEmptyFieldsModal(true);
     } else {
       const novoEPI = {
@@ -118,12 +132,16 @@ export default function EntregaEpis({ route }) {
     navigation.navigate('Lista');
   };
 
-
   const motivoOptions = ['Entrega', 'Dano', 'Substituição', 'Perda'];
+
+  useEffect(() => {
+    if (redirectToEPI) {
+      navigation.navigate('EPI');
+    }
+  }, [redirectToEPI, navigation]);
 
   return (
     <View style={styles.container}>
-      
       <Modal
         visible={showEmptyFieldsModal}
         animationType="slide"
@@ -143,22 +161,36 @@ export default function EntregaEpis({ route }) {
       </Modal>
 
       <Modal
-         visible={showConfirmationModal}
-         animationType="slide"
-          transparent={true}
-        >
+        visible={showSuccessModal}
+        animationType="slide"
+        transparent={true}
+      >
         <View style={styles.modalContainer1}>
           <View style={styles.modalContent1}>
-            <Text style={styles.text}>
-              Peça ao trabalhador que assine para confirmar a entrega do equipamento.
-            </Text>
-            <TouchableOpacity style={styles.buttonok1} onPress={() => navigation.navigate('Assinatura')}>
-              <Text style={styles.buttonText1}>Assinatura</Text>
+            <Text style={styles.textEPI}>E.P.I CADASTRADO COM SUCESSO !</Text>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={showEPISelectWarning}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modalContainer1}>
+          <View style={styles.modalContent1}>
+          <Text style={styles.text}>Selecione pelo menos 1 E.P.I</Text>
+            <TouchableOpacity
+              style={styles.buttonok1}
+              onPress={() => setShowEPISelectWarning(false)}
+            >
+              <Text style={styles.buttonText1}>OK</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
+  
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.button}
@@ -168,7 +200,7 @@ export default function EntregaEpis({ route }) {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.buttonCad} onPress={() => setShowConfirmationModal(true)}>
+      <TouchableOpacity style={styles.buttonCad} onPress={handleSalvar}>
         <Text style={styles.buttonTextCad}>FINALIZAR CADASTRO</Text>
       </TouchableOpacity>
 
@@ -257,13 +289,12 @@ export default function EntregaEpis({ route }) {
             selectedValue={motivo}
             style={styles.picker}
             onValueChange={(itemValue) => setMotivo(itemValue)}
-            >
-             {/* Adicione a opção "Escolha uma opção" como a primeira opção no mapeamento */}
+          >
             <Picker.Item label="Escolha uma opção" value="" />
-              {motivoOptions.map((item, index) => (
-            <Picker.Item key={index} label={item} value={item} />
+            {motivoOptions.map((item, index) => (
+              <Picker.Item key={index} label={item} value={item} />
             ))}
-          </Picker>   
+          </Picker>
 
           <Text style={styles.text}>Previsão de Substituição</Text>
           <TextInputMask
@@ -290,7 +321,6 @@ export default function EntregaEpis({ route }) {
         </ScrollView>
       </Modal>
 
-      {/* Exibe as informações do formulário se showFormInfo for verdadeiro */}
       {showFormInfo && (
         <View style={styles.formInfoContainer}>
           <Text style={styles.text}>Código do EPI: {codigoEPI}</Text>
@@ -302,7 +332,6 @@ export default function EntregaEpis({ route }) {
         </View>
       )}
 
-      {/* Exibe a lista de EPIs adicionados */}
       <Text style={styles.textepi}>E.P.I´s adicionados</Text>
       <FlatList
         data={epis}
@@ -323,13 +352,13 @@ export default function EntregaEpis({ route }) {
   );
 }
 
-
-
 const styles = {
   container: {
     flex: 1,
     alignItems: 'flex-start',
     padding: 20,
+    maxWidth: 500, // Limita a largura máxima do conteúdo
+    marginHorizontal: 'auto', // Centraliza o conteúdo horizontalmente
   },
   
   labelText1: {
@@ -483,6 +512,11 @@ const styles = {
     color:"white",
     fontSize:12,
   },
+
+  textEPI:{
+    fontWeight: 'bold',
+    fontSize:17
+  }
 };
 
 
