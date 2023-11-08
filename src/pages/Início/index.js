@@ -11,14 +11,16 @@ function Inicio({ navigation }) {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.button} onPress={item.action}>
-      <Icon name={item.icon} size={50} color="blue" />
-      <Text style={styles.buttonText}>{item.title}</Text>
+      <View style={styles.buttonContent}>
+        <Icon name={item.icon} size={50} color="white" style={styles.icon} />
+        <Text style={styles.buttonText}>{item.title}</Text>
+      </View>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.pageTitle}>Página Inicial</Text>
+      <Text style={styles.pageTitle}>Seja Bem Vindo !</Text>
       <View style={styles.buttonContainer}>
         {data.slice(0, 2).map((item, index) => (
           <View key={index}>{renderItem({ item })}</View>
@@ -38,33 +40,43 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0', // Background color for the whole screen
+    backgroundColor: '#f0f0f0', // Cor de fundo para toda a tela
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20, // Add some spacing between button rows
+    marginBottom: 20, // Adicionando espaçamento entre as linhas de botões
   },
   button: {
+    backgroundColor: '#3498db', // Cor de fundo do botão
+    padding: 15, // Aumentando o espaçamento interno para aumentar o tamanho
+    borderRadius: 10, // Bordas arredondadas
+    margin: 10,
+    elevation: 5, // Sombra
+    alignItems: 'center',
+    justifyContent: 'center',
     width: 150, // Decreased button width
     height: 150, // Decreased button height
-    justifyContent: 'center',
+  },
+  buttonContent: {
     alignItems: 'center',
-    backgroundColor: 'lightblue', // A modern blue color with some transparency
-    borderRadius: 15, // Rounded corners
-    margin: 10, // Increased margin
+  },
+  icon: {
+    marginBottom: 10, // Espaçamento entre o ícone e o texto
   },
   buttonText: {
-    marginTop: 10, // Add some spacing between icon and text
-    fontSize: 16, // Increased font size
-    color: 'white', // Text color
-    fontWeight: 'bold', // Bold text
+    fontSize: 16,
+    color: 'white',
+    fontWeight: 'bold',
     textAlign: 'center', // Center-align text
   },
   pageTitle: {
-    fontSize: 24, // Increased font size for the page title
-    marginBottom: 20, // Add some spacing below the page title
+    fontSize: 25, // Tamanho do título aumentado
+    color: 'black', // Cor de texto em preto
+    marginBottom: 20,
+    textTransform: 'uppercase', // Transforma o texto em maiúsculas
+    
   },
 });
 

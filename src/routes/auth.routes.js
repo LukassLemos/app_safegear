@@ -25,6 +25,8 @@ import EntregaEpis from '../pages/EntregaEpis';
 import Lista from '../pages/Lista';
 import ExcluiRegistro from '../pages/ExcluiRegistro';
 import EditarEpis from '../pages/EditarEpis';
+import Anotações from '../pages/Anotações';
+import Configurações from '../Configurações';
 
 
 const Stack = createNativeStackNavigator();
@@ -191,14 +193,24 @@ export default function AuthStack() {
         component={Lista}
         options={{ headerShown: true}}
       />
-       <Stack.Screen
+      <Stack.Screen
         name="ExcluiRegistro"
         component={ExcluiRegistro}
         options={{ headerShown: false}}
       />
-        <Stack.Screen
+      <Stack.Screen
         name="EditarEpis"
         component={EditarEpis}
+        options={{ headerShown: false}}
+      />
+      <Stack.Screen
+        name="Anotações"
+        component={Anotações}
+        options={{ headerShown: false}}
+      />
+      <Stack.Screen
+        name="Configurações"
+        component={Configurações}
         options={{ headerShown: false}}
       />
     </Stack.Navigator>

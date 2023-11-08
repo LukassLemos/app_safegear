@@ -49,7 +49,8 @@ const data = [
 const PermitViewer = () => {
   const [searchText, setSearchText] = useState('');
   const [searchVisible, setSearchVisible] = useState(false);
-  const navigation = useNavigation(); // Obtenha a navegação usando useNavigation
+  const [selectedItem, setSelectedItem] = useState(null);
+  const navigation = useNavigation();
 
   const openPDFWebsite = (url) => {
     Linking.openURL(url)
@@ -62,15 +63,23 @@ const PermitViewer = () => {
     setSearchVisible(!searchVisible);
     if (!searchVisible) {
       setSearchText('');
+      setSelectedItem(null); // Limpa a seleção ao fechar a pesquisa
     }
   };
 
   const filteredData = data.filter(item => item.key.toLowerCase().includes(searchText.toLowerCase()));
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item, index }) => {
+    const isSelected = index === selectedItem;
     return (
-      <TouchableHighlight onPress={() => openPDFWebsite(item.url)}>
-        <View style={styles.item}>
+      <TouchableHighlight
+        onPress={() => {
+          openPDFWebsite(item.url);
+          setSelectedItem(index);
+        }}
+        
+      >
+        <View style={[styles.item, { backgroundColor: isSelected ?'WHITE' : 'white' }]}>
           <Text style={styles.key}>{item.key}</Text>
           <Text style={styles.text1}>{item.text}</Text>
         </View>
@@ -92,7 +101,6 @@ const PermitViewer = () => {
 
   return (
     <View style={styles.container}>
-      
       <View style={styles.searchContainer}>
         {searchVisible ? (
           <TextInput
@@ -144,12 +152,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     marginTop: -10
   },
-  searchIcon: {
-    marginRight: 16,
-    color: 'black',
-    fontSize: 24,
-    marginTop: 4,
-  },
   headerIcons: {
     flexDirection: 'row',
     marginRight: 16,
@@ -161,5 +163,3 @@ const styles = StyleSheet.create({
 });
 
 export default PermitViewer;
-
-      
