@@ -43,7 +43,7 @@ const EditarEpis = ({ route, navigation }) => {
 
                 setTimeout(() => {
                   setSuccessModalVisible(false);
-                  navigation.goBack();
+                  navigation.goBack('EPI´S');
                 }, 3000);
               }
             });

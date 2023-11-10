@@ -26,7 +26,8 @@ import Lista from '../pages/Lista';
 import ExcluiRegistro from '../pages/ExcluiRegistro';
 import EditarEpis from '../pages/EditarEpis';
 import Anotações from '../pages/Anotações';
-import Configurações from '../Configurações';
+import Configurações from '../pages/Configurações';
+import Notificações from '../pages/Notificações';
 
 
 const Stack = createNativeStackNavigator();
@@ -211,6 +212,12 @@ export default function AuthStack() {
       <Stack.Screen
         name="Configurações"
         component={Configurações}
+        options={{ headerShown: false}}
+  
+      />
+      <Stack.Screen
+        name="Notificações"
+        component={Notificações}
         options={{ headerShown: false}}
       />
     </Stack.Navigator>

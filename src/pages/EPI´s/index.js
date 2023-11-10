@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Modal, TouchableHighlight } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Firebase from 'firebase';
-
+import { useTheme } from '@react-navigation/native';
 
 const EPI = ({ navigation, route }) => {
   const [episData, setEpisData] = useState([]);
@@ -12,6 +12,7 @@ const EPI = ({ navigation, route }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
   const [isRemoveModalVisible, setRemoveModalVisible] = useState(false);
+  const { colors, dark } = useTheme();
 
   const loadData = () => {
     const database = Firebase.database();
@@ -49,8 +50,13 @@ const EPI = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
       ),
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+          <Icon name="bars" size={20} style={[styles.iconbars, { color: colors.iconColor }]} />
+        </TouchableOpacity>
+      ),
     });
-  }, [navigation, searchVisible]);
+  }, [navigation, searchVisible, colors]);
 
   useEffect(() => {
     loadData();
@@ -103,17 +109,17 @@ const EPI = ({ navigation, route }) => {
   }, [route.params]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {searchVisible && (
         <TextInput
-          style={styles.searchInput}
+         style={[styles.searchInput, { color: dark ? 'white' : 'black' }]}
           placeholder="Buscar por nome..."
           value={searchQuery}
           onChangeText={handleSearch}
         />
       )}
 
-      <Text style={styles.text}>Lista de Funcionários</Text>
+      <Text style={[styles.text, { color: dark ? 'white' : 'black' }]}>Lista de Funcionários</Text>
 
       {episData.length > 0 ? (
         <FlatList
@@ -327,7 +333,12 @@ const styles = StyleSheet.create({
   topcontainer:{
     fontSize:15,
     fontWeight: 'bold',
-  }
+  },
+   
+  iconbars:{
+    marginLeft: 16,
+    marginRight: 20
+  },
 });
 
 export default EPI;
