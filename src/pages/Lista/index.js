@@ -2,12 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import firebase from 'firebase';
+import { useTheme } from '@react-navigation/native';
 
 export default function Lista({ navigation }) {
   const [funcionarios, setFuncionarios] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchVisible, setSearchVisible] = useState(false);
   const [originalFuncionarios, setOriginalFuncionarios] = useState([]);
+
+  const { colors, dark } = useTheme();
 
   const loadData = useCallback(() => {
     const funcionariosRef = firebase.database().ref('funcionarios');
@@ -58,10 +61,10 @@ export default function Lista({ navigation }) {
       headerRight: () => (
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={() => setSearchVisible(!searchVisible)}>
-            <Icon name={searchVisible ? 'close' : 'search'} size={24} style={styles.iconsearch} />
+           <Icon name={searchVisible ? 'close' : 'search'} size={24} style={[styles.iconsearch, { color: colors.iconColor }]} />
           </TouchableOpacity>
           <TouchableOpacity onPress={loadData}>
-            <Icon name="refresh" size={24} style={styles.iconrefresh} />
+           <Icon name="refresh" size={24} style={[styles.iconrefresh, { color: colors.iconColor }]} />
           </TouchableOpacity>
         </View>
       ),
@@ -88,18 +91,19 @@ export default function Lista({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Barra de pesquisa */}
       {searchVisible && (
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: dark ? 'white' : 'black' }]}
+          placeholderTextColor={dark ? 'white' : 'rgba(0, 0, 0, 0.5)'} 
           placeholder="Buscar por nome..."
           value={searchQuery}
           onChangeText={handleSearch}
         />
       )}
 
-      <Text style={styles.text}>Lista de Funcionários</Text>
+      <Text style={[styles.text,  { color: dark ? 'white' : 'black' }]}>Lista de Funcionários</Text>
 
       {/* Lista de funcionários */}
       <FlatList
@@ -108,7 +112,7 @@ export default function Lista({ navigation }) {
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => navigateToEntregaEpis(item.nome)}>
             <View style={styles.funcionarioItem} key={item.id}>
-              <Text style={styles.funcionarioNome}>{item.nome}</Text>
+              <Text style={[styles.funcionarioNome, { color: dark ? 'white' : 'black' }]}>{item.nome}</Text>
               {/* Adicione outros campos conforme necessário */}
             </View>
           </TouchableOpacity>

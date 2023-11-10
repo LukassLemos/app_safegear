@@ -1,8 +1,10 @@
 
 import { FlatList, Text, TouchableHighlight, Linking, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import React, { useState, useEffect  } from 'react';
+import React, { useState, useEffect, useContext  } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import { useTheme } from '@react-navigation/native';
+
 
 const data = [
   { key: 'NR 01', url: 'https://drive.google.com/file/d/1Ctytm9pTcUbcxExHN3Ct0INAHgL-N6M1/view?usp=sharing', text: 'DISPOSIÇÕES GERAIS E GERENCIAMENTO DE RISCOS OCUPACIONAIS' },
@@ -43,7 +45,7 @@ const data = [
   { key: 'NR 36', url: 'https://drive.google.com/file/d/122OQV2w_lvI6MXESUKrq1d-tfttRArcm/view?usp=sharing', text: 'SEGURANÇA E SAÚDE NO TRABALHO EM EMPRESAS DE ABATE E PROCESSAMENTO DE CARNES E DERIVADOS' },
   { key: 'NR 37', url: 'https://drive.google.com/file/d/1z5zf12bbC6IjU28MQT51DR9UMK8sv-bz/view?usp=sharing', text: 'SEGURANÇA E SAÚDE EM PLATAFORMAS DE PETRÓLEO' },
   { key: 'NR 38', url: 'https://drive.google.com/file/d/1jXeHd1fjTcKEPGeFR0EVCsmHYOjcPzYe/view?usp=sharing', text: 'SEGURANÇA E SAÚDE NO TRABALHO NAS ATIVIDADES DE LIMPEZA URBANA E MANEJO DE RESÍDUOS SÓLIDOS' },
-
+  
 ];
 
 const PermitViewer = () => {
@@ -51,6 +53,8 @@ const PermitViewer = () => {
   const [searchVisible, setSearchVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const navigation = useNavigation();
+  const { colors, dark } = useTheme();
+ 
 
   const openPDFWebsite = (url) => {
     Linking.openURL(url)
@@ -92,26 +96,33 @@ const PermitViewer = () => {
       headerRight: () => (
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={() => toggleSearch()}>
-            <Icon name={searchVisible ? 'close' : 'search'} size={24} style={styles.iconsearch} />
+          <Icon name={searchVisible ? 'close' : 'search'} size={24} style={[styles.iconsearch, { color: colors.iconColor }]} />
           </TouchableOpacity>
         </View>
       ),
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+          <Icon name="bars" size={20} style={[styles.iconbars, { color: colors.iconColor }]} />
+        </TouchableOpacity>
+      ),
     });
-  }, [navigation, searchVisible]);
+  }, [navigation, searchVisible, colors]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.searchContainer, { color: dark ? 'white' : 'black' }]}>
         {searchVisible ? (
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text }]}
+            placeholderTextColor={dark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'} // Defina a cor do placeholder com base no tema
             placeholder="Pesquisar NR"
             value={searchText}
             onChangeText={setSearchText}
           />
         ) : null}
       </View>
-      <FlatList
+      
+      <FlatList 
         data={filteredData}
         renderItem={renderItem}
       />
@@ -121,12 +132,13 @@ const PermitViewer = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
+    flex:1,
+ 
   },
   item: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: '#fff',
   },
   key: {
     fontSize: 18,
@@ -140,6 +152,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
+    
   },
   searchInput: {
     flex: 1,
@@ -150,7 +163,8 @@ const styles = StyleSheet.create({
   },
   searchIconContainer: {
     alignItems: 'flex-end',
-    marginTop: -10
+    marginTop: -10,
+    marginBottom: 10,
   },
   headerIcons: {
     flexDirection: 'row',
@@ -160,6 +174,12 @@ const styles = StyleSheet.create({
     marginRight: 16,
     color: 'black',
   },
+  
+  iconbars:{
+    marginLeft: 16,
+    marginRight: 20
+  },
+
 });
 
 export default PermitViewer;

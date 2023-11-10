@@ -1,13 +1,31 @@
-import React from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '@react-navigation/native';
+import { AppContext } from '../context/AppContext';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 function Inicio({ navigation }) {
   const data = [
     { title: "Anotações", icon: "ios-calendar", action: () => navigation.navigate('Anotações') },
     { title: "Configurações", icon: "ios-settings", action: () => navigation.navigate('Configurações') },
-    { title: "Notificações", icon: "ios-notifications", action: () => navigation.navigate('Notificações') },
+   
   ];
+
+  const { isDarkTheme, setIsDarkTheme } = useContext(AppContext);
+  const { colors, dark } = useTheme();
+  const [searchVisible, setSearchVisible] = useState(false);
+
+  useEffect(() => {
+    // Atualizar opções de navegação para adicionar os ícones de lupa e recarregar
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+          <FontAwesome name="bars" size={20} style={[styles.iconbars, { color: colors.iconColor }]} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [colors]);
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.button} onPress={item.action}>
@@ -19,8 +37,10 @@ function Inicio({ navigation }) {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.pageTitle}>Seja Bem Vindo !</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+
+      <Text style={[styles.pageTitle, { color: colors.iconColor }]}>Seja Bem Vindo !</Text>
+
       <View style={styles.buttonContainer}>
         {data.slice(0, 2).map((item, index) => (
           <View key={index}>{renderItem({ item })}</View>
@@ -31,6 +51,7 @@ function Inicio({ navigation }) {
           <View key={index}>{renderItem({ item })}</View>
         ))}
       </View>
+
     </View>
   );
 }
@@ -74,9 +95,12 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontSize: 25, // Tamanho do título aumentado
     color: 'black', // Cor de texto em preto
-    marginBottom: 20,
+    marginBottom: 50,
     textTransform: 'uppercase', // Transforma o texto em maiúsculas
-    
+  },
+  iconbars:{
+    marginLeft: 16,
+    marginRight: 20
   },
 });
 

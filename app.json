@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "app_safegear",
-    "slug": "app_safegear",
+    "name": "SafeGear",
+    "slug": "SafeGear",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",

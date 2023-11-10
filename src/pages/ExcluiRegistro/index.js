@@ -70,7 +70,7 @@ export default function ExcluiRegistro({ navigation }) {
             <TouchableOpacity
               onPress={() => {
                 excluirRegistro(selectedItem.id);
-                navigation.navigate('EPI');
+                navigation.navigate('EPI',);
               }}
               style={[styles.button, styles.simButton]}
             >

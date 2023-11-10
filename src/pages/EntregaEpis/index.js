@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import { Picker } from '@react-native-picker/picker';
 import { TextInputMask } from 'react-native-masked-text';
 import Firebase from 'firebase';
-import { StatusBar } from 'expo-status-bar';
+import { useTheme } from '@react-navigation/native';
 
 export default function EntregaEpis({ route }) {
   const [funcionarios, setFuncionarios] = useState('');
@@ -27,6 +27,8 @@ export default function EntregaEpis({ route }) {
   const [redirectToEPI, setRedirectToEPI] = useState(false);
   const [showEPISelectWarning, setShowEPISelectWarning] = useState(false);
   const [showInfoMissingWarning, setShowInfoMissingWarning] = useState(false);
+
+  const { colors, dark } = useTheme();
 
   const handleSalvar = () => {
     if (epis.length === 0) {
@@ -204,31 +206,33 @@ export default function EntregaEpis({ route }) {
         <Text style={styles.buttonTextCad}>FINALIZAR CADASTRO</Text>
       </TouchableOpacity>
 
-      <Text style={styles.labelText1}>Funcionário</Text>
+      <Text style={[styles.labelText1, { color: dark ? 'white' : 'black' }]}>Funcionário</Text>
 
       <View style={styles.inputField}>
         <TouchableOpacity onPress={navigateToDesiredScreen}>
           <TextInput
             value={funcionarios}
             onChangeText={(text) => setFuncionarios(text)}
+            placeholderTextColor={dark ? 'white' : 'rgba(0, 0, 0, 0.5)'}
             placeholder="Clique para selecionar funcionário"
             editable={false}
-            style={styles.textInput}
+            style={[styles.textInput, { color: dark ? 'white' : 'black' }]}
           />
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.labelText2}>Data de Entrega</Text>
+      <Text style={[styles.labelText2 , { color: dark ? 'white' : 'black' }]}>Data de Entrega</Text>
       <TextInput
         value={dataEntrega}
+        placeholderTextColor={dark ? 'white' : 'rgba(0, 0, 0, 0.5)'}
         placeholder="Clique para selecionar a data"
         onFocus={showDatePicker}
-        style={styles.inputField}
+        style={[styles.inputField, { color: dark ? 'white' : 'black' }]}
       />
 
       {funcionarios && (
         <TouchableOpacity onPress={showModal}>
-          <Text style={styles.buttonText}>Adicionar EPI</Text>
+          <Text style={[styles.buttonText , { color: dark ? 'white' : 'black' }]}>Adicionar EPI</Text>
         </TouchableOpacity>
       )}
 
@@ -322,7 +326,7 @@ export default function EntregaEpis({ route }) {
       </Modal>
 
       {showFormInfo && (
-        <View style={styles.formInfoContainer}>
+        <View style={[styles.formInfoContainer, { color: dark ? 'white' : 'black' }]}>
           <Text style={styles.text}>Código do EPI: {codigoEPI}</Text>
           <Text style={styles.text}>Nome do EPI: {nomeEPI}</Text>
           <Text style={styles.text}>Validade CA: {validadeCA}</Text>
@@ -332,19 +336,19 @@ export default function EntregaEpis({ route }) {
         </View>
       )}
 
-      <Text style={styles.textepi}>E.P.I´s adicionados</Text>
+      <Text style={[styles.textepi, { color: dark ? 'white' : 'black' }]}>E.P.I´s adicionados</Text>
       <FlatList
         data={epis}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => (
           <View style={styles.epiItem}>
-            <Text style={styles.texttop}>EPI {index + 1}</Text>
-            <Text style={styles.text1}>Código do EPI: {item.codigoEPI}</Text>
-            <Text style={styles.text1}>Nome do EPI: {item.nomeEPI}</Text>
-            <Text style={styles.text1}>Validade CA: {item.validadeCA}</Text>
-            <Text style={styles.text1}>Quantidade: {item.quantidade}</Text>
-            <Text style={styles.text1}>Motivo: {item.motivo}</Text>
-            <Text style={styles.text1}>Previsão de Substituição: {item.previsaoSubstituicao}</Text>
+            <Text style={[styles.texttop, { color: dark ? 'white' : 'black' }]}>EPI {index + 1}</Text>
+            <Text style={[styles.text1, { color: dark ? 'white' : 'black' }]}>Código do EPI: {item.codigoEPI}</Text>
+            <Text style={[styles.text1, { color: dark ? 'white' : 'black' }]}>Nome do EPI: {item.nomeEPI}</Text>
+            <Text style={[styles.text1, { color: dark ? 'white' : 'black' }]}>Validade CA: {item.validadeCA}</Text>
+            <Text style={[styles.text1, { color: dark ? 'white' : 'black' }]}>Quantidade: {item.quantidade}</Text>
+            <Text style={[styles.text1, { color: dark ? 'white' : 'black' }]}>Motivo: {item.motivo}</Text>
+            <Text style={[styles.text1, { color: dark ? 'white' : 'black' }]}>Previsão de Substituição: {item.previsaoSubstituicao}</Text>
           </View>
         )}
       />

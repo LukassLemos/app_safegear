@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, ScrollView, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, ScrollView, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import Firebase from 'firebase';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { TextInputMask } from 'react-native-masked-text';
 import { useTheme } from '@react-navigation/native';
 
-const EditarEpis = ({ route, navigation }) => {
+const TrocaEPI = ({ route, navigation }) => {
   const [editedData, setEditedData] = useState(route.params.selectedItem);
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
@@ -68,16 +68,19 @@ const EditarEpis = ({ route, navigation }) => {
           <Icon name="arrow-back" size={30} color="white" />
         </TouchableOpacity>
 
-  
-        <Text style={[styles.titulo , { color: dark ? 'white' : 'black' }]}>Atualização de Cadastro</Text>
+        <Text style={[styles.titulo, { color: dark ? 'white' : 'black' }]}>Troca de E.P.I</Text>
         <View style={styles.row}>
-          <Text style={[styles.label , { color: dark ? 'white' : 'black' }]}>Funcionário</Text>
+          <Text style={[styles.label, { color: dark ? 'white' : 'black' }]}>Funcionário</Text>
           <TextInput
-            style={[styles.input, { color: dark ? 'white' : 'black' }]}
+            style={[
+              styles.input,
+              { color: dark ? 'white' : 'gray' }, // Adiciona a cor cinza quando não é editável
+            ]}
             placeholderTextColor={dark ? 'white' : 'rgba(0, 0, 0, 0.5)'}
             placeholder="Nome do Funcionário"
             value={editedData.funcionarios}
             onChangeText={(text) => setEditedData({ ...editedData, funcionarios: text })}
+            editable={false}
           />
         </View>
         <View style={styles.row}>
@@ -97,26 +100,37 @@ const EditarEpis = ({ route, navigation }) => {
         <View style={styles.row}>
           <Text style={[styles.label, { color: dark ? 'white' : 'black' }]}>Código do EPI</Text>
           <TextInput
-            style={[styles.input, { color: dark ? 'white' : 'black' }]}
+            style={[
+              styles.input,
+              { color: dark ? 'white' : 'gray' }, // Adiciona a cor cinza quando não é editável
+            ]}
             placeholder="Código do EPI"
             value={editedData.epis[0].codigoEPI}
             onChangeText={(text) => setEditedData({ ...editedData, epis: [{ ...editedData.epis[0], codigoEPI: text }] })}
             keyboardType="numeric"
+            editable={false}
           />
         </View>
         <View style={styles.row}>
           <Text style={[styles.label, { color: dark ? 'white' : 'black' }]}>Nome do EPI</Text>
           <TextInput
-            style={[styles.input, { color: dark ? 'white' : 'black' }]}
+            style={[
+              styles.input,
+              { color: dark ? 'white' : 'gray' }, // Adiciona a cor cinza quando não é editável
+            ]}
             placeholder="Nome do EPI"
             value={editedData.epis[0].nomeEPI}
             onChangeText={(text) => setEditedData({ ...editedData, epis: [{ ...editedData.epis[0], nomeEPI: text }] })}
+            editable={false}
           />
         </View>
         <View style={styles.row}>
           <Text style={[styles.label, { color: dark ? 'white' : 'black' }]}>Validade CA</Text>
           <TextInputMask
-            style={[styles.input, { color: dark ? 'white' : 'black' }]}
+            style={[
+              styles.input,
+              { color: dark ? 'white' : 'black' }, // Adiciona a cor cinza quando não é editável
+            ]}
             type={'datetime'}
             options={{
               format: 'DD/MM/YYYY',
@@ -124,13 +138,17 @@ const EditarEpis = ({ route, navigation }) => {
             value={editedData.epis[0].validadeCA}
             onChangeText={(text) => setEditedData({ ...editedData, epis: [{ ...editedData.epis[0], validadeCA: text }] })}
             keyboardType="numeric"
+            
             placeholder="Validade CA "
           />
         </View>
         <View style={styles.row}>
           <Text style={[styles.label, { color: dark ? 'white' : 'black' }]}>Quantidade</Text>
           <TextInput
-            style={[styles.input, { color: dark ? 'white' : 'black' }]}
+            style={[
+              styles.input,
+              { color: dark ? 'white' : 'black' }, // Mantém a cor original para campos editáveis
+            ]}
             placeholder="Quantidade"
             value={editedData.epis[0].quantidade}
             onChangeText={(text) => setEditedData({ ...editedData, epis: [{ ...editedData.epis[0], quantidade: text }] })}
@@ -139,17 +157,23 @@ const EditarEpis = ({ route, navigation }) => {
         </View>
         <View style={styles.row}>
           <Text style={[styles.label, { color: dark ? 'white' : 'black' }]}>Motivo</Text>
-          <TextInput
-            style={[styles.input, { color: dark ? 'white' : 'black' }]}
+          <TextInput             style={[
+              styles.input,
+              { color: dark ? 'white' : 'black' }, // Adiciona a cor cinza quando não é editável
+            ]}
             placeholder="Motivo"
             value={editedData.epis[0].motivo}
             onChangeText={(text) => setEditedData({ ...editedData, epis: [{ ...editedData.epis[0], motivo: text }] })}
+            
           />
         </View>
         <View style={styles.row}>
-          <Text  style={[styles.label, { color: dark ? 'white' : 'black' }]}>Previsão de Substituição:</Text>
+          <Text style={[styles.label, { color: dark ? 'white' : 'black' }]}>Previsão de Substituição:</Text>
           <TextInputMask
-            style={[styles.input, { color: dark ? 'white' : 'black' }]}
+            style={[
+              styles.input,
+              { color: dark ? 'white' : 'black' }, // Adiciona a cor cinza quando não é editável
+            ]}
             type={'datetime'}
             options={{
               format: 'DD/MM/YYYY',
@@ -157,6 +181,7 @@ const EditarEpis = ({ route, navigation }) => {
             value={editedData.epis[0].previsaoSubstituicao}
             onChangeText={(text) => setEditedData({ ...editedData, epis: [{ ...editedData.epis[0], previsaoSubstituicao: text }] })}
             keyboardType="numeric"
+            
             placeholder="Previsão de Substituição "
           />
         </View>
@@ -177,10 +202,10 @@ const EditarEpis = ({ route, navigation }) => {
             <View style={styles.modalContent}>
               <Text style={styles.modalText}>Por favor, preencha todos os campos</Text>
               <TouchableOpacity
-                style={styles.buttonOK} // Defina a largura e altura desejadas
+                style={styles.buttonOK}
                 onPress={() => setErrorModalVisible(false)}
-                >
-                 <Text style={styles.buttonTextOK}>OK</Text>
+              >
+                <Text style={styles.buttonTextOK}>OK</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -292,8 +317,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginTop: -10,
-    width: 50, // Defina a largura desejada
-    
+    width: 50,
   },
 
   buttonTextOK: {
@@ -303,4 +327,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-export default EditarEpis;
+
+export default TrocaEPI;
+
+           

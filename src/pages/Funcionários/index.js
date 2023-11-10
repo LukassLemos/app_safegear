@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; 
 import firebase from 'firebase';
+import { useTheme } from '@react-navigation/native';
 
 export default function Funcionarios({ navigation }) {
   const [funcionarios, setFuncionarios] = useState([]);
@@ -9,6 +10,7 @@ export default function Funcionarios({ navigation }) {
   const [searchVisible, setSearchVisible] = useState(false);
   const [originalFuncionarios, setOriginalFuncionarios] = useState([]);
   const [noFuncionariosMessage, setNoFuncionariosMessage] = useState('');
+  const { colors, dark } = useTheme();
 
   const loadData = useCallback(() => {
     const funcionariosRef = firebase.database().ref('funcionarios');
@@ -61,18 +63,21 @@ export default function Funcionarios({ navigation }) {
     navigation.setOptions({
       headerRight: () => (
         <View style={styles.headerIcons}>
-
           <TouchableOpacity onPress={() => setSearchVisible(!searchVisible)}>
-            <Icon name={searchVisible ? 'close' : 'search'} size={24}  style={styles.iconsearch} />
+            <Icon name={searchVisible ? 'close' : 'search'} size={24} style={[styles.iconsearch, { color: colors.iconColor }]} />
           </TouchableOpacity>
-
           <TouchableOpacity onPress={loadData}>
-            <Icon name="refresh" size={24}  style={styles.iconrefresh} />
+            <Icon name="refresh" size={24} style={[styles.iconrefresh, { color: colors.iconColor }]} />
           </TouchableOpacity>
         </View>
       ),
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+          <Icon name="bars" size={20} style={[styles.iconbars, { color: colors.iconColor }]} />
+        </TouchableOpacity>
+      ),
     });
-  }, [navigation, loadData, searchVisible]);
+  }, [navigation, loadData, searchVisible, colors]);
 
   const navigateToCadastro = () => {
     navigation.navigate('CadastroFuncionario');
@@ -94,21 +99,24 @@ export default function Funcionarios({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Barra de pesquisa */}
       {searchVisible && (
         <TextInput
-          style={styles.searchInput}
+         style={[styles.searchInput, { color: dark ? 'white' : 'black' }]} // Defina a cor do texto com base no tema
+          placeholderTextColor={dark ? 'white' : 'rgba(0, 0, 0, 0.5)'} // Defina a cor do placeholder com base no tema
           placeholder="Buscar por nome..."
           value={searchQuery}
           onChangeText={handleSearch}
         />
       )}
 
-      <Text style={styles.text}>Lista de Funcionários</Text>
+      <Text style={[styles.text, { color: dark ? 'white' : 'black' }]}>Lista de Funcionários</Text>
 
       {noFuncionariosMessage ? (
-        <Text style={styles.noFuncionariosMessage}>{noFuncionariosMessage}</Text>
+        <Text style={[styles.noFuncionariosMessage, { color: dark ? 'white' : 'black' }]}>
+        {noFuncionariosMessage}
+      </Text>
       ) : (
         <FlatList
           data={funcionarios}
@@ -191,6 +199,11 @@ const styles = StyleSheet.create({
     marginRight: 16,
     color: 'black',
     marginRight:-2
+  },
+
+  iconbars:{
+    marginLeft: 16,
+    marginRight: 20
   },
 
   searchInput: {

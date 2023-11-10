@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal,
 import firebase from 'firebase';
 import { TextInputMask } from 'react-native-masked-text';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTheme } from '@react-navigation/native';
 
 export default function VisualizarFunc({ route, navigation }) {
   const { funcionarioId } = route.params;
@@ -10,6 +11,8 @@ export default function VisualizarFunc({ route, navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const { dark } = useTheme();
 
   useEffect(() => {
     setIsLoading(true);
@@ -80,14 +83,15 @@ export default function VisualizarFunc({ route, navigation }) {
           onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={30} color="white" />
         </TouchableOpacity>
-        <Text style={styles.titulo}>Atualização de Cadastro</Text>
+        
+        <Text style={[styles.titulo, { color: dark ? 'white' : 'black' } ]}>Atualização de Cadastro</Text>
 
         {funcionario.map(({ campo, valor }, index) => (
           <View key={index} style={styles.camposContainer}>
-            <Text style={styles.label}>{campo}</Text>
+            <Text style={[styles.label, { color: dark ? 'white' : 'black' }]}>{campo}</Text>
             {campo === 'Cpf' ? (
               <TextInputMask
-                style={styles.maskedInput}
+                style={[styles.maskedInput, { color: dark ? 'white' : 'black' }]}
                 type={'cpf'}
                 options={{
                   mask: '999.999.999-99',
@@ -99,10 +103,11 @@ export default function VisualizarFunc({ route, navigation }) {
                   );
                   setFuncionario(novoFuncionario);
                 }}
+                keyboardType='numeric'
               />
             ) : campo.includes('Celular') ? (
               <TextInputMask
-                style={styles.maskedInput}
+                style={[styles.maskedInput, { color: dark ? 'white' : 'black' }]}
                 type={'custom'}
                 options={{
                   mask: '(99) 99999-9999',
@@ -118,7 +123,7 @@ export default function VisualizarFunc({ route, navigation }) {
               />
             ) : campo.includes('Telefone') ? (
               <TextInputMask
-                style={styles.maskedInput}
+                style={[styles.maskedInput, { color: dark ? 'white' : 'black' }]}
                 type={'custom'}
                 options={{
                   mask: '(99) 9999-9999',
@@ -134,7 +139,7 @@ export default function VisualizarFunc({ route, navigation }) {
               />
             ) : campo === 'Data de Nascimento' ? (
               <TextInputMask
-                style={styles.maskedInput}
+                style={[styles.maskedInput, { color: dark ? 'white' : 'black' }]}
                 type={'datetime'}
                 options={{
                   format: 'DD/MM/YYYY',
@@ -146,10 +151,11 @@ export default function VisualizarFunc({ route, navigation }) {
                   );
                   setFuncionario(novoFuncionario);
                 }}
+                keyboardType='numeric'
               />
             ) : campo === 'Email' ? (
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: dark ? 'white' : 'black' }]}
                 value={valor}
                 onChangeText={(novoValor) => {
                   const novoFuncionario = funcionario.map((c, i) =>
@@ -162,7 +168,7 @@ export default function VisualizarFunc({ route, navigation }) {
               />
             ) : (
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: dark ? 'white' : 'black' }]}
                 value={valor}
                 onChangeText={(novoValor) => {
                   const novoFuncionario = funcionario.map((c, i) =>
@@ -172,6 +178,7 @@ export default function VisualizarFunc({ route, navigation }) {
                 }}
                 keyboardType='default'
               />
+  
             )}
           </View>
         ))}

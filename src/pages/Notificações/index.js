@@ -1,45 +1,76 @@
-import React from 'react';
-import { View, Text, FlatList } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import Firebase from 'firebase';
+import { useTheme } from '@react-navigation/native';
+import { AppContext } from '../context/AppContext';
 
-export default function Notificações() {
-  const episData = [
-    {
-      funcionario: 'João da Silva',
-      codigoEPI: '001',
-      nomeEPI: 'Protetor Auricular',
-      validadeCA: '01/12/2025',
-      quantidade: '10',
-      motivo: 'Entrega',
-      previsaoSubstituicao: '01/12/2030',
-    },
-    {
-      funcionario: 'Maria Oliveira',
-      codigoEPI: '002',
-      nomeEPI: 'Luvas de Segurança',
-      validadeCA: '05/10/2025',
-      quantidade: '20',
-      motivo: 'Entrega',
-      previsaoSubstituicao: '05/10/2030',
-    },
-    // Adicione mais objetos de dados conforme necessário.
-  ];
+export default function Notificacoes() {
+  const [notificacoes, setNotificacoes] = useState([]);
+
+  const { colors } = useTheme();
+  const { isDarkTheme, setIsDarkTheme } = useContext(AppContext);
+  
+  useEffect(() => {
+    // Função para formatar a data no formato dd/mm/yyyy
+    const formatarData = (dataString) => {
+      const [day, month, year] = dataString.split('/');
+      return `${day}/${month}/${year}`;
+    };
+
+    // Função para verificar se uma data está dentro das próximas 24 horas
+    const dentroDasProximas24Horas = (dataString) => {
+      const dataPrevisao = new Date(formatarData(dataString));
+      const hoje = new Date();
+      const amanhã = new Date();
+      amanhã.setDate(hoje.getDate() + 1);
+
+      return dataPrevisao >= hoje && dataPrevisao <= amanhã;
+    };
+
+    // Apontando para o nó 'Cadastro de Epis'
+    const ref = Firebase.database().ref('Cadastro de Epis');
+
+    ref.on('value', (snapshot) => {
+      const data = snapshot.val();
+      console.log('Dados do Firebase:', data);
+
+      if (data) {
+        const notificacoes = [];
+
+        for (const key in data) {
+          const epi = data[key];
+          console.log('EPI:', epi);
+
+          if (epi && epi.previsaoSubstituicao) {
+            const previsaoSubstituicao = epi.previsaoSubstituicao;
+
+            if (dentroDasPróximas24Horas(previsaoSubstituicao)) {
+              notificacoes.push({
+                funcionario: epi.funcionarios,
+                dataPrevisao: previsaoSubstituicao,
+              });
+            }
+          }
+        }
+        setNotificacoes(notificacoes);
+      }
+    });
+
+    return () => ref.off('value');
+  }, []);
+
+  console.log('Notificações:', notificacoes);
 
   return (
-    <View>
-      <Text style={styles.textepi}>E.P.I´s adicionados</Text>
+    <View style={[styles.container, {backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Notificações</Text>
       <FlatList
-        data={episData}
+        data={notificacoes}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item, index }) => (
-          <View style={styles.epiItem}>
-            <Text style={styles.texttop}>EPI {index + 1}</Text>
-            <Text style={styles.text1}>Funcionário: {item.funcionario}</Text>
-            <Text style={styles.text1}>Código do EPI: {item.codigoEPI}</Text>
-            <Text style={styles.text1}>Nome do EPI: {item.nomeEPI}</Text>
-            <Text style={styles.text1}>Validade CA: {item.validadeCA}</Text>
-            <Text style={styles.text1}>Quantidade: {item.quantidade}</Text>
-            <Text style={styles.text1}>Motivo: {item.motivo}</Text>
-            <Text style={styles.text1}>Previsão de Substituição: {item.previsaoSubstituicao}</Text>
+        renderItem={({ item }) => (
+          <View style={[styles.notificationContainer, {backgroundColor: colors.background }]}>
+            <Text style={[styles.text, { color: colors.text }]}>Funcionário: {item.funcionario}</Text>
+            <Text style={[styles.text, { color: colors.text }]}>Data de Previsão: {item.dataPrevisao}</Text>
           </View>
         )}
       />
@@ -47,32 +78,20 @@ export default function Notificações() {
   );
 }
 
-const styles = {
-  textepi: {
-    fontSize: 20,
-    marginLeft: 70,
-    marginBottom: 10,
-    marginTop: 20,
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 25,
     fontWeight: 'bold',
+    margin: 10,
   },
-
-  epiItem: {
-    marginTop: 10,
-    marginLeft: 10,
-    borderWidth: 1,
-    borderColor: 'gray',
-    padding: 20,
+  notificationContainer: {
+    margin: 10,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
-
-  texttop: {
-    fontSize: 15,
-    marginBottom: 10,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-
-  text1: {
-    fontSize: 15,
-    marginBottom: 10,
-  },
-};
+});

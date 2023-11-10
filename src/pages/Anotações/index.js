@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {
   View,
@@ -11,10 +11,14 @@ import {
   Alert,
   Modal,
 } from 'react-native';
+import { useTheme } from '@react-navigation/native';
+import { AppContext } from '../context/AppContext'; 
 import firebase from 'firebase/app';
 import 'firebase/database';
 
 const App = () => {
+  const { colors } = useTheme();
+  const { isDarkTheme, setIsDarkTheme } = useContext(AppContext);
   const [notes, setNotes] = useState([]);
   const [text, setText] = useState('');
   const [selectedNoteIndex, setSelectedNoteIndex] = useState(null);
@@ -111,7 +115,7 @@ const App = () => {
   const [notesKeys, setNotesKeys] = useState([]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: colors.background }]}>
       <ScrollView style={styles.notesContainer}>
         {notes.map((note, index) => (
           <TouchableOpacity

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import firebase from 'firebase';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '@react-navigation/native';
 
 export default function EdicaoFuncionario({ route, navigation }) {
   // Obtenha o ID do funcionário da rota
@@ -9,6 +10,7 @@ export default function EdicaoFuncionario({ route, navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const { funcionarioId } = route.params || {};
 
+  const {  dark } = useTheme();
 
   useEffect(() => {
     const funcionariosRef = firebase.database().ref('funcionarios');
@@ -80,12 +82,12 @@ export default function EdicaoFuncionario({ route, navigation }) {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.text}>Funcionário</Text>
+      <Text style={[styles.text, , { color: dark ? 'white' : 'black' }]}>Funcionário</Text>
 
       {funcionario ? (
         <View style={styles.funcionarioItem}>
           <Text style={styles.funcionarioRegistro}>{funcionario.registro}</Text>
-          <Text style={styles.funcionarioNome}>{funcionario.nome}</Text>
+          <Text style={[styles.funcionarioNome , { color: dark ? 'white' : 'black' }]}>{funcionario.nome}</Text>
 
           {/* Botões de Editar e Remover */}
           <View style={styles.buttonsContainer}>

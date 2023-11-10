@@ -26,8 +26,9 @@ import Lista from '../pages/Lista';
 import ExcluiRegistro from '../pages/ExcluiRegistro';
 import EditarEpis from '../pages/EditarEpis';
 import Anotações from '../pages/Anotações';
-import Configurações from '../pages/Configurações';
 import Notificações from '../pages/Notificações';
+import Configurações from '../pages/Configurações';
+import TrocaEPI from '../pages/TrocaEPI';
 
 
 const Stack = createNativeStackNavigator();
@@ -124,9 +125,10 @@ const CustomDrawerContent = (props) => {
 
 function HomeStack() {
   return (
-    <Drawer.Navigator
+    <Drawer.Navigator 
       initialRouteName="Início"
       drawerContent={(props) => <CustomDrawerContent {...props} />}
+     
     >
       <Drawer.Screen name="Início" component={Início} />
       <Drawer.Screen name="Funcionários" component={Funcionários} />
@@ -213,11 +215,15 @@ export default function AuthStack() {
         name="Configurações"
         component={Configurações}
         options={{ headerShown: false}}
-  
       />
       <Stack.Screen
         name="Notificações"
         component={Notificações}
+        options={{ headerShown: false}}
+      />
+       <Stack.Screen
+        name="TrocaEPI"
+        component={TrocaEPI}
         options={{ headerShown: false}}
       />
     </Stack.Navigator>

@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Modal 
 import { TextInputMask } from 'react-native-masked-text';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '@react-navigation/native';
 
 import firebase from 'firebase';
 import 'firebase/database';
@@ -47,6 +48,8 @@ export default function CadastroFuncionario() {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [camposComErro, setCamposComErro] = useState([]);
+
+  const { dark } = useTheme();
 
   const camposObrigatorios = [
     { campo: 'registro', valor: registro },
@@ -98,7 +101,7 @@ export default function CadastroFuncionario() {
           { campo: 'Registro', valor: registro },
           { campo: 'Nome', valor: nome },
           { campo: 'Cpf', valor: cpf },
-          { campo: 'Data Nascimento', valor: dataNascimento },
+          { campo: 'Data de Nascimento', valor: dataNascimento },
           { campo: 'Celular', valor: celular },
           { campo: 'Telefone', valor: telefone },
           { campo: 'Email', valor: email },
@@ -192,23 +195,38 @@ export default function CadastroFuncionario() {
       </View>
 
       <View style={styles.container}>
-        <Text style={styles.titulo}>Cadastro de Funcionário</Text>
+        <Text style={[styles.titulo, { color: dark ? 'white' : 'black' }]}>Cadastro de Funcionário</Text>
       </View>
       <View style={styles.containerMeio}>
         <View style={styles.containerInterno}>
 
           <Text style={styles.subTitulosDivisao}>Informações Pessoais:</Text>
-          <TextInput keyboardType="numeric" placeholder="Número de Registro." style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} onChangeText={(text) => setRegistro(text)} value={registro} />
-          <TextInput placeholder="Nome completo." style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} autoCorrect={false} onChangeText={(text) => setNome(text)} value={nome} />
+          <TextInput keyboardType="numeric" 
+           placeholderTextColor={dark ? 'white' : 'gray'}
+           placeholder="Número de Registro."
+           style={[styles.textInput, { color: dark ? 'white' : 'black' }, registro === '' && aviso !== '' && styles.requiredInput]} 
+           onChangeText={(text) => setRegistro(text)} 
+           value={registro} 
+          />
+
+          <TextInput
+           placeholderTextColor={dark ? 'white' : 'gray'}
+           placeholder="Nome completo." 
+           style={[styles.textInput, { color: dark ? 'white' : 'black' }, registro === '' && aviso !== '' && styles.requiredInput]} 
+           autoCorrect={false}
+           onChangeText={(text) => setNome(text)} 
+           value={nome} 
+          />
 
           <TextInputMask
+            placeholderTextColor={dark ? 'white' : 'gray'}
             placeholder="CPF."
             keyboardType='numeric'
             type={'cpf'}
             options={{
               format: '999.999.999-99'
             }}
-            style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]}
+            style={[styles.textInput, { color: dark ? 'white' : 'black' } , registro === '' && aviso !== '' && styles.requiredInput]}
             onChangeText={(text) => setCpf(text)} value={cpf}
 
           />
@@ -218,8 +236,9 @@ export default function CadastroFuncionario() {
             options={{
               format: 'DD/MM/YYYY',
             }}
+            placeholderTextColor={dark ? 'white' : 'gray'}
             placeholder="Data de nascimento."
-            style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]}
+            style={[styles.textInput, { color: dark ? 'white' : 'black' }, registro === '' && aviso !== '' && styles.requiredInput]}
             onChangeText={(text) => setDataNascimento(text)}
             value={dataNascimento}
           />
@@ -230,8 +249,9 @@ export default function CadastroFuncionario() {
             options={{
               mask: '(99) 99999-9999',
             }}
+            placeholderTextColor={dark ? 'white' : 'gray'}
             placeholder="Celular com DDD."
-            style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]}
+            style={[styles.textInput, { color: dark ? 'white' : 'black' }, registro === '' && aviso !== '' && styles.requiredInput]}
             onChangeText={(text) => setCelular(text)}
             value={celular}
           />
@@ -242,16 +262,18 @@ export default function CadastroFuncionario() {
             options={{
               mask: '(99) 9999-9999',
             }}
+            placeholderTextColor={dark ? 'white' : 'gray'}
             placeholder="Telefone fixo com DDD."
-            style={styles.textInput}
+            style={[styles.textInput, { color: dark ? 'white' : 'black' }]}
             onChangeText={(text) => setTelefone(text)}
             value={telefone}
           />
 
           <TextInput
             keyboardType="email-address"
+            placeholderTextColor={dark ? 'white' : 'gray'}
             placeholder="E-mail."
-            style={styles.textInput}
+            style={[styles.textInput, { color: dark ? 'white' : 'black' }]}
             autoCapitalize="none"
             autoCorrect={false}
             onChangeText={(text) => setEmail(text)}
@@ -259,14 +281,29 @@ export default function CadastroFuncionario() {
           />
 
           <Text style={styles.subTitulosDivisao}>Informação de Ocupação:</Text>
-          <TextInput placeholder="Setor." style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} autoCorrect={false} onChangeText={(text) => setSetor(text)} value={setor} />
-          <TextInput placeholder="Cargo." style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]} autoCorrect={false} onChangeText={(text) => setCargo(text)} value={cargo} />
+          <TextInput 
+            placeholderTextColor={dark ? 'white' : 'gray'}
+            placeholder="Setor." 
+            style={[styles.textInput, { color: dark ? 'white' : 'black' }, registro === '' && aviso !== '' && styles.requiredInput]} 
+            autoCorrect={false} 
+            onChangeText={(text) => setSetor(text)} 
+            value={setor} 
+           />
+          <TextInput
+            placeholderTextColor={dark ? 'white' : 'gray'}
+            placeholder="Cargo." 
+            style={[styles.textInput, { color: dark ? 'white' : 'black' }, registro === '' && aviso !== '' && styles.requiredInput]} 
+            autoCorrect={false} 
+            onChangeText={(text) => setCargo(text)} 
+            value={cargo} 
+          />
 
           <Text style={styles.subTitulosDivisaoEmergencia}>Contato de Emergência:</Text>
 
           <TextInput
+            placeholderTextColor={dark ? 'white' : 'gray'}
             placeholder="Nome completo."
-            style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]}
+            style={[styles.textInput, { color: dark ? 'white' : 'black' }, registro === '' && aviso !== '' && styles.requiredInput]}
             autoCorrect={false}
             onChangeText={(text) => setNomeContato(text)}
             value={nomeContato}
@@ -278,8 +315,9 @@ export default function CadastroFuncionario() {
             options={{
               mask: '(99) 99999-9999',
             }}
+            placeholderTextColor={dark ? 'white' : 'gray'}
             placeholder="Celular com DDD."
-            style={[styles.textInput, registro === '' && aviso !== '' && styles.requiredInput]}
+            style={[styles.textInput, { color: dark ? 'white' : 'black' }, registro === '' && aviso !== '' && styles.requiredInput]}
             onChangeText={(text) => setCelularEmergencia(text)}
             value={celularEmergencia}
           />
@@ -290,8 +328,9 @@ export default function CadastroFuncionario() {
             options={{
               mask: '(99) 9999-9999',
             }}
+            placeholderTextColor={dark ? 'white' : 'gray'}
             placeholder="Telefone fixo com DDD."
-            style={styles.textInput}
+            style={[styles.textInput,{ color: dark ? 'white' : 'black' }]}
             onChangeText={(text) => setTelefoneEmergencia(text)}
             value={telefoneEmergencia}
           />
